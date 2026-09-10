@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hao XIAO — Chercheur en ML &amp; Mathématiques Appliquées</title>
+<meta name="description" content="Hao XIAO — Chercheur en apprentissage automatique et mathématiques appliquées. Modèles génératifs, vision 3D, entraînement distribué. Fondateur et étudiant-entrepreneur.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%234f46e5'/%3E%3Ctext x='50' y='70' font-size='58' font-family='Arial,Helvetica,sans-serif' font-weight='700' fill='white' text-anchor='middle'%3EH%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --text: #0f172a;
+    --text-muted: #475569;
+    --text-light: #94a3b8;
+    --border: #e2e8f0;
+    --border-soft: #eef2f7;
+    --accent: #4f46e5;
+    --accent-strong: #4338ca;
+    --accent-soft: #eef2ff;
+    --shadow-sm: 0 1px 2px rgba(15,23,42,.04), 0 1px 3px rgba(15,23,42,.06);
+    --shadow-md: 0 4px 12px -2px rgba(15,23,42,.08), 0 2px 4px -2px rgba(15,23,42,.04);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { color: var(--accent-strong); }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace; }
+
+  .container { max-width: 1040px; margin: 0 auto; padding: 0 32px; }
+
+  /* ---------- Nav ---------- */
+  nav.top {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(250,250,250,.8);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  nav.top .inner {
+    max-width: 1040px; margin: 0 auto; padding: 14px 32px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  }
+  .brand { font-weight: 800; font-size: 15px; letter-spacing: -.4px; color: var(--text); display: flex; align-items: center; gap: 9px; }
+  .brand .dot { width: 10px; height: 10px; border-radius: 3px; background: var(--accent); display: inline-block; }
+  .nav-links { display: flex; align-items: center; gap: 22px; }
+  .nav-links a { color: var(--text-muted); font-size: 14px; font-weight: 500; }
+  .nav-links a:hover { color: var(--text); }
+  .lang-toggle { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
+  .lang-toggle button {
+    border: none; background: transparent; padding: 5px 11px; font-size: 12.5px; font-weight: 600;
+    cursor: pointer; color: var(--text-light); font-family: inherit;
+  }
+  .lang-toggle button.active { background: var(--accent); color: #fff; }
+
+  /* ---------- Hero ---------- */
+  header.hero { padding: 72px 0 56px; }
+  .hero-grid { display: flex; gap: 40px; align-items: center; }
+  .avatar {
+    width: 132px; height: 132px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
+    border: 4px solid var(--surface); box-shadow: var(--shadow-md);
+  }
+  .hero-text h1 { font-size: 40px; font-weight: 900; letter-spacing: -1.2px; line-height: 1.08; }
+  .hero-text .role { font-size: 18px; font-weight: 600; color: var(--accent); margin-top: 8px; }
+  .hero-text .summary { color: var(--text-muted); font-size: 15.5px; max-width: 620px; margin-top: 14px; }
+  .hero-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 500;
+    padding: 7px 13px; border-radius: 999px; background: var(--surface); border: 1px solid var(--border); color: var(--text-muted);
+  }
+  .chip svg { width: 15px; height: 15px; color: var(--accent); flex-shrink: 0; }
+  .chip a { color: var(--text-muted); }
+  .chip a:hover { color: var(--accent); }
+
+  /* ---------- Sections ---------- */
+  section { padding: 44px 0; }
+  .section-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 26px; }
+  .section-head .num { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--accent); font-weight: 600; }
+  .section-head h2 { font-size: 22px; font-weight: 800; letter-spacing: -.4px; }
+  .section-head .rule { flex: 1; height: 1px; background: var(--border); align-self: center; }
+
+  /* Experience */
+  .job { display: grid; grid-template-columns: 1fr 180px; gap: 12px 24px; padding: 22px 0; border-bottom: 1px solid var(--border-soft); }
+  .job:first-of-type { padding-top: 0; }
+  .job:last-child { border-bottom: none; }
+  .job .role { font-size: 16px; font-weight: 700; }
+  .job .org { font-size: 14.5px; color: var(--text-muted); font-weight: 500; margin-top: 1px; }
+  .job .org .sep { color: var(--text-light); margin: 0 5px; }
+  .job .date { text-align: right; font-size: 13px; color: var(--text-light); font-weight: 500; white-space: nowrap; padding-top: 3px; }
+  .job ul { grid-column: 1 / -1; list-style: none; margin-top: 6px; display: grid; gap: 7px; }
+  .job li { position: relative; padding-left: 18px; color: var(--text-muted); font-size: 14.5px; }
+  .job li::before { content: ""; position: absolute; left: 2px; top: 9px; width: 6px; height: 6px; border-radius: 2px; background: var(--accent); opacity: .5; }
+
+  /* Publications */
+  .pub { padding: 16px 0; border-bottom: 1px solid var(--border-soft); display: flex; gap: 14px; align-items: flex-start; }
+  .pub:last-child { border-bottom: none; }
+  .pub .idx { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text-light); padding-top: 3px; min-width: 20px; }
+  .pub .title { font-size: 15.5px; font-weight: 600; }
+  .pub .meta { font-size: 13px; color: var(--text-light); margin-top: 3px; }
+  .pub .meta a { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; }
+
+  /* Projects */
+  .projects { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px;
+    box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 10px; transition: box-shadow .18s ease, transform .18s ease;
+  }
+  .card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+  .card .icon { font-size: 22px; }
+  .card h3 { font-size: 16px; font-weight: 700; }
+  .card p { font-size: 14px; color: var(--text-muted); flex: 1; }
+  .card .gh { font-size: 13px; font-weight: 600; color: var(--accent); }
+  .card .gh:hover { color: var(--accent-strong); }
+
+  /* Skills */
+  .skills { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  .skill-group { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px 22px; }
+  .skill-group h3 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--accent); margin-bottom: 12px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag { font-size: 13px; font-weight: 500; padding: 5px 11px; border-radius: 7px; background: var(--accent-soft); color: var(--accent-strong); }
+
+  /* Education */
+  .edu { display: flex; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--border-soft); align-items: flex-start; }
+  .edu:last-child { border-bottom: none; }
+  .edu .date { font-size: 13px; color: var(--text-light); font-weight: 600; min-width: 130px; padding-top: 3px; }
+  .edu .degree { font-size: 15px; font-weight: 700; }
+  .edu .school { font-size: 14px; color: var(--text-muted); }
+  .edu .note { font-size: 13.5px; color: var(--text-light); margin-top: 3px; }
+
+  /* Awards */
+  .awards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px 28px; }
+  .award { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; }
+  .award .yr { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--text-light); min-width: 52px; padding-top: 2px; }
+  .award .name { font-size: 14.5px; font-weight: 600; }
+  .award .org { font-size: 13px; color: var(--text-light); }
+
+  /* Talks */
+  .talk { display: flex; gap: 16px; padding: 13px 0; border-bottom: 1px solid var(--border-soft); align-items: baseline; }
+  .talk:last-child { border-bottom: none; }
+  .talk .date { font-size: 13px; color: var(--text-light); font-weight: 600; min-width: 110px; white-space: nowrap; }
+  .talk .name { font-size: 14.5px; }
+  .talk .venue { color: var(--text-light); font-size: 13.5px; }
+
+  /* Footer */
+  footer { border-top: 1px solid var(--border); margin-top: 40px; padding: 40px 0 56px; text-align: center; }
+  footer .name { font-weight: 800; font-size: 17px; }
+  footer .contact { margin-top: 10px; display: flex; justify-content: center; flex-wrap: wrap; gap: 16px; }
+  footer .contact a { color: var(--text-muted); font-size: 14px; }
+  footer .contact a:hover { color: var(--accent); }
+  footer .copy { margin-top: 18px; font-size: 12.5px; color: var(--text-light); }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 760px) {
+    .container, nav.top .inner { padding-left: 20px; padding-right: 20px; }
+    .nav-links { display: none; }
+    .hero-grid { flex-direction: column; align-items: flex-start; gap: 24px; }
+    header.hero { padding: 44px 0 36px; }
+    .hero-text h1 { font-size: 31px; }
+    .job { grid-template-columns: 1fr; }
+    .job .date { text-align: left; }
+    .projects, .skills, .awards { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="inner">
+    <a class="brand" href="#top"><span class="dot"></span>Hao XIAO</a>
+    <div class="nav-links">
+      <a href="#experience" data-fr="Expérience" data-en="Experience">Expérience</a>
+      <a href="#publications" data-fr="Publications" data-en="Publications">Publications</a>
+      <a href="#projects" data-fr="Projets" data-en="Projects">Projets</a>
+      <a href="#skills" data-fr="Compétences" data-en="Skills">Compétences</a>
+      <a href="#education" data-fr="Formation" data-en="Education">Formation</a>
+    </div>
+    <div class="lang-toggle">
+      <button id="btn-fr" class="active" onclick="setLang('fr')">FR</button>
+      <button id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+  </div>
+</nav>
+
+<main class="container">
+
+  <header class="hero" id="top">
+    <div class="hero-grid">
+      <img class="avatar" src="me.jpg" alt="Hao XIAO" width="132" height="132">
+      <div class="hero-text">
+        <h1>Hao XIAO</h1>
+        <div class="role" data-fr="Chercheur en Apprentissage Automatique &amp; Mathématiques Appliquées" data-en="Machine Learning &amp; Applied Mathematics Researcher">Chercheur en Apprentissage Automatique &amp; Mathématiques Appliquées</div>
+        <p class="summary" data-fr="Je conçois des systèmes d'IA à l'échelle — modèles génératifs en temps continu, vision 3D et entraînement distribué de modèles à plusieurs milliards de paramètres. Fondateur et étudiant-entrepreneur, auteur de trois publications arXiv."
+           data-en="I build AI systems at scale — continuous-time generative models, 3D vision, and distributed training of multi-billion-parameter models. Founder and student-entrepreneur, author of three arXiv publications.">Je conçois des systèmes d'IA à l'échelle — modèles génératifs en temps continu, vision 3D et entraînement distribué de modèles à plusieurs milliards de paramètres. Fondateur et étudiant-entrepreneur, auteur de trois publications arXiv.</p>
+        <div class="hero-meta">
+          <span class="chip">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Boulogne-Billancourt, France
+          </span>
+          <span class="chip">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>
+            <a href="mailto:xiaohaofr@gmail.com">xiaohaofr@gmail.com</a>
+          </span>
+          <span class="chip">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-1.98c-3.2.7-3.87-1.54-3.87-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.41-2.69 5.38-5.25 5.67.41.35.78 1.05.78 2.12v3.14c0 .31.2.68.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
+            <a href="https://github.com/xiao98" target="_blank" rel="noopener">github.com/xiao98</a>
+          </span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section id="experience">
+    <div class="section-head">
+      <span class="num">01</span>
+      <h2 data-fr="Expérience" data-en="Experience">Expérience</h2>
+      <span class="rule"></span>
+    </div>
+
+    <div class="job">
+      <div>
+        <div class="role" data-fr="Fondateur &amp; Chercheur Principal" data-en="Founder &amp; Principal Researcher">Fondateur &amp; Chercheur Principal</div>
+        <div class="org">Atlas AI LAB <span class="sep">·</span><span data-fr="startup, États-Unis" data-en="startup, USA">startup, États-Unis</span> <span class="sep">·</span> Paris, France</div>
+      </div>
+      <div class="date" data-fr="Janv. 2024 – Présent" data-en="Jan 2024 – Present">Janv. 2024 – Présent</div>
+      <ul>
+        <li data-fr="Modèles génératifs en temps continu : conception d'architectures basées sur le Flow Matching et optimisation des solveurs EDO par régularisation du champ de vecteurs (−45 % de temps d'inférence)." data-en="Continuous-time generative models: design of Flow Matching architectures and ODE-solver optimization via vector-field regularization (−45% inference time).">Modèles génératifs en temps continu : conception d'architectures basées sur le Flow Matching et optimisation des solveurs EDO par régularisation du champ de vecteurs (−45 % de temps d'inférence).</li>
+        <li data-fr="Alignement &amp; optimisation : modélisation de l'effondrement du modèle de récompense en RLHF/DPO et pénalité dynamique par approximation de la divergence KL pour stabiliser l'entraînement." data-en="Alignment &amp; optimization: modeled reward-model collapse in RLHF/DPO and introduced a dynamic KL-divergence penalty to stabilize training.">Alignement &amp; optimisation : modélisation de l'effondrement du modèle de récompense en RLHF/DPO et pénalité dynamique par approximation de la divergence KL pour stabiliser l'entraînement.</li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div>
+        <div class="role" data-fr="Ingénieur de Recherche — Vision 3D &amp; Systèmes Distribués" data-en="Research Engineer — 3D Vision &amp; Distributed Systems">Ingénieur de Recherche — Vision 3D &amp; Systèmes Distribués</div>
+        <div class="org">ByteDance <span class="sep">·</span> Pékin, Chine</div>
+      </div>
+      <div class="date" data-fr="Juil. 2020 – Déc. 2023" data-en="Jul 2020 – Dec 2023">Juil. 2020 – Déc. 2023</div>
+      <ul>
+        <li data-fr="Vision 3D &amp; représentations implicites (NeRF) : codage positionnel par analyse de Fourier pour contourner l'aliasing spectral (+2,1 dB de PSNR en synthèse de nouvelles vues)." data-en="3D vision &amp; implicit representations (NeRF): Fourier-based positional encoding to overcome spectral aliasing (+2.1 dB PSNR in novel-view synthesis).">Vision 3D &amp; représentations implicites (NeRF) : codage positionnel par analyse de Fourier pour contourner l'aliasing spectral (+2,1 dB de PSNR en synthèse de nouvelles vues).</li>
+        <li data-fr="Entraînement distribué à grande échelle : plugin CUDA/C++ inspiré de ZeRO-3 pour réduire la fragmentation VRAM (+22 % de débit sur un VLM de 15 Md de paramètres)." data-en="Large-scale distributed training: ZeRO-3-inspired CUDA/C++ plugin to reduce VRAM fragmentation (+22% throughput on a 15B-parameter VLM).">Entraînement distribué à grande échelle : plugin CUDA/C++ inspiré de ZeRO-3 pour réduire la fragmentation VRAM (+22 % de débit sur un VLM de 15 Md de paramètres).</li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div>
+        <div class="role" data-fr="Collaborateur Open-Source de Recherche" data-en="Open-Source Research Collaborator">Collaborateur Open-Source de Recherche</div>
+        <div class="org">DCST, Université Tsinghua <span class="sep">·</span> Pékin, Chine</div>
+      </div>
+      <div class="date" data-fr="Juil. 2019 – Mars 2020" data-en="Jul 2019 – Mar 2020">Juil. 2019 – Mars 2020</div>
+      <ul>
+        <li data-fr="Théorie des GAN &amp; transport optimal : analyse comparative des distances statistiques et implémentation de Sinkhorn-Knopp pour approximer la distance de Wasserstein." data-en="GAN theory &amp; optimal transport: benchmarked statistical distances and implemented Sinkhorn-Knopp with entropic regularization to approximate the Wasserstein distance.">Théorie des GAN &amp; transport optimal : analyse comparative des distances statistiques et implémentation de Sinkhorn-Knopp pour approximer la distance de Wasserstein.</li>
+        <li data-fr="Ingénierie CUDA : noyaux CUDA bas niveau pour le calcul de matrices de transport optimal (×3,5 sur les opérations tensorielles clés)." data-en="CUDA engineering: low-level CUDA kernels for optimal-transport matrices (3.5× speedup on key tensor operations).">Ingénierie CUDA : noyaux CUDA bas niveau pour le calcul de matrices de transport optimal (×3,5 sur les opérations tensorielles clés).</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="publications">
+    <div class="section-head">
+      <span class="num">02</span>
+      <h2 data-fr="Publications" data-en="Publications">Publications</h2>
+      <span class="rule"></span>
+    </div>
+
+    <div class="pub">
+      <span class="idx">1</span>
+      <div>
+        <div class="title">Fast Log-Domain Sinkhorn Optimal Transport with Warp-Level GPU Reductions</div>
+        <div class="meta" data-fr="H. Xiao · arXiv preprint" data-en="H. Xiao · arXiv preprint">H. Xiao · arXiv preprint</div>
+        <div class="meta"><a href="https://arxiv.org/abs/2605.00837" target="_blank" rel="noopener">arXiv:2605.00837</a></div>
+      </div>
+    </div>
+    <div class="pub">
+      <span class="idx">2</span>
+      <div>
+        <div class="title">From Euler to Dormand-Prince: ODE Solvers for Flow Matching Generative Models</div>
+        <div class="meta" data-fr="H. Xiao · arXiv preprint" data-en="H. Xiao · arXiv preprint">H. Xiao · arXiv preprint</div>
+        <div class="meta"><a href="https://arxiv.org/abs/2605.00836" target="_blank" rel="noopener">arXiv:2605.00836</a></div>
+      </div>
+    </div>
+    <div class="pub">
+      <span class="idx">3</span>
+      <div>
+        <div class="title">Sparse Regression under Correlation and Weak Signals: A Reproducible Benchmark of Classical and Bayesian Methods</div>
+        <div class="meta" data-fr="H. Xiao · arXiv preprint" data-en="H. Xiao · arXiv preprint">H. Xiao · arXiv preprint</div>
+        <div class="meta"><a href="https://arxiv.org/abs/2605.00835" target="_blank" rel="noopener">arXiv:2605.00835</a></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="projects">
+    <div class="section-head">
+      <span class="num">03</span>
+      <h2 data-fr="Projets" data-en="Projects">Projets</h2>
+      <span class="rule"></span>
+    </div>
+
+    <div class="projects">
+      <div class="card">
+        <div class="icon">🤖</div>
+        <h3>OpenKIKI</h3>
+        <p data-fr="Framework d'orchestration multi-agents permettant à l'IA de fonctionner en continu pendant des centaines d'heures pour résoudre automatiquement des problèmes complexes de programmation et de mathématiques."
+           data-en="Multi-agent orchestration framework that lets AI run continuously for hundreds of hours to automatically solve complex programming and mathematics problems.">Framework d'orchestration multi-agents permettant à l'IA de fonctionner en continu pendant des centaines d'heures pour résoudre automatiquement des problèmes complexes de programmation et de mathématiques.</p>
+        <a class="gh" href="https://github.com/xiao98/OpenKIKI" target="_blank" rel="noopener">github.com/xiao98/OpenKIKI ↗</a>
+      </div>
+      <div class="card">
+        <div class="icon">🔌</div>
+        <h3>EdgeAI-MCP</h3>
+        <p data-fr="Implémentation open-source du protocole MCP pour les environnements industriels, permettant à tout modèle d'IA (Claude, GPT, Mistral, Llama…) de lire des données et de piloter des équipements via une interface standardisée."
+           data-en="Open-source implementation of the MCP protocol for industrial environments, letting any AI model (Claude, GPT, Mistral, Llama…) read data and control equipment through a standardized interface.">Implémentation open-source du protocole MCP pour les environnements industriels, permettant à tout modèle d'IA (Claude, GPT, Mistral, Llama…) de lire des données et de piloter des équipements via une interface standardisée.</p>
+        <a class="gh" href="https://github.com/xiao98/EdgeAI-MCP" target="_blank" rel="noopener">github.com/xiao98/EdgeAI-MCP ↗</a>
+      </div>
+      <div class="card">
+        <div class="icon">🔢</div>
+        <h3>Pylean4</h3>
+        <p data-fr="Réimplémentation pédagogique en Python des composants fondamentaux du noyau de Lean 4, pour rendre accessibles la théorie des types dépendants et les démonstrateurs interactifs de théorèmes."
+           data-en="Pedagogical Python reimplementation of the fundamental components of the Lean 4 kernel, making dependent type theory and interactive theorem provers accessible.">Réimplémentation pédagogique en Python des composants fondamentaux du noyau de Lean 4, pour rendre accessibles la théorie des types dépendants et les démonstrateurs interactifs de théorèmes.</p>
+        <a class="gh" href="https://github.com/xiao98/Pylean4" target="_blank" rel="noopener">github.com/xiao98/Pylean4 ↗</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="skills">
+    <div class="section-head">
+      <span class="num">04</span>
+      <h2 data-fr="Compétences" data-en="Skills">Compétences</h2>
+      <span class="rule"></span>
+    </div>
+
+    <div class="skills">
+      <div class="skill-group">
+        <h3 data-fr="Mathématiques" data-en="Mathematics">Mathématiques</h3>
+        <div class="tags">
+          <span class="tag" data-fr="Statistiques mathématiques" data-en="Mathematical statistics">Statistiques mathématiques</span>
+          <span class="tag" data-fr="Transport optimal" data-en="Optimal transport">Transport optimal</span>
+          <span class="tag" data-fr="Processus stochastiques" data-en="Stochastic processes">Processus stochastiques</span>
+          <span class="tag" data-fr="Optimisation non-convexe" data-en="Non-convex optimization">Optimisation non-convexe</span>
+          <span class="tag" data-fr="Géométrie différentielle" data-en="Differential geometry">Géométrie différentielle</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <h3 data-fr="Programmation" data-en="Programming">Programmation</h3>
+        <div class="tags">
+          <span class="tag">Python</span>
+          <span class="tag">C/C++</span>
+          <span class="tag">CUDA</span>
+          <span class="tag">Triton</span>
+          <span class="tag">R</span>
+          <span class="tag">Bash</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <h3>Frameworks</h3>
+        <div class="tags">
+          <span class="tag">PyTorch</span>
+          <span class="tag">JAX</span>
+          <span class="tag">Hugging Face</span>
+          <span class="tag">DeepSpeed</span>
+          <span class="tag">TensorRT</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <h3 data-fr="Infrastructure" data-en="Infrastructure">Infrastructure</h3>
+        <div class="tags">
+          <span class="tag">Git</span>
+          <span class="tag">Docker</span>
+          <span class="tag">SLURM</span>
+          <span class="tag">Linux / Unix</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="education">
+    <div class="section-head">
+      <span class="num">05</span>
+      <h2 data-fr="Formation" data-en="Education">Formation</h2>
+      <span class="rule"></span>
+    </div>
+
+    <div class="edu">
+      <div class="date" data-fr="2025 – Présent" data-en="2025 – Present">2025 – Présent</div>
+      <div>
+        <div class="degree" data-fr="Statut National d'Étudiant-Entrepreneur (SNEE)" data-en="National Student-Entrepreneur Status (SNEE)">Statut National d'Étudiant-Entrepreneur (SNEE)</div>
+        <div class="school">HESAM PEPITE · Paris, France</div>
+        <div class="note" data-fr="Fondateur d'une organisation éducative innovante — hub de connexion pour la recherche en IA et mathématiques appliquées." data-en="Founder of an innovative educational organization — a hub connecting AI and applied mathematics research.">Fondateur d'une organisation éducative innovante — hub de connexion pour la recherche en IA et mathématiques appliquées.</div>
+      </div>
+    </div>
+
+    <div class="edu">
+      <div class="date">2024 – 2025</div>
+      <div>
+        <div class="degree" data-fr="Diplôme Universitaire de Français Langue Étrangère (FLE)" data-en="University Diploma in French as a Foreign Language (FLE)">Diplôme Universitaire de Français Langue Étrangère (FLE)</div>
+        <div class="school">Université Paul-Valéry Montpellier 3 · Montpellier, France</div>
+      </div>
+    </div>
+
+    <div class="edu">
+      <div class="date">2020 – 2022</div>
+      <div>
+        <div class="degree" data-fr="Master en Technologies Informatiques" data-en="Master in Computer Technology">Master en Technologies Informatiques</div>
+        <div class="school">Université Normale de Pékin (BNU) · Pékin, Chine</div>
+        <div class="note" data-fr="Cursus interrompu pour raisons sanitaires (COVID-19) · GPA 3,95/4,0" data-en="Interrupted for health reasons (COVID-19) · GPA 3.95/4.0">Cursus interrompu pour raisons sanitaires (COVID-19) · GPA 3,95/4,0</div>
+      </div>
+    </div>
+
+    <div class="edu">
+      <div class="date">2016 – 2020</div>
+      <div>
+        <div class="degree" data-fr="Licence en Mathématiques et Mathématiques Appliquées" data-en="Bachelor in Mathematics &amp; Applied Mathematics">Licence en Mathématiques et Mathématiques Appliquées</div>
+        <div class="school">Université Normale du Jiangxi · Nanchang, Chine</div>
+        <div class="note" data-fr="Major de promotion (Top 5 %) · moyenne 15,2/20" data-en="Valedictorian (Top 5%) · GPA 15.2/20">Major de promotion (Top 5 %) · moyenne 15,2/20</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="awards">
+    <div class="section-head">
+      <span class="num">06</span>
+      <h2 data-fr="Prix &amp; Distinctions" data-en="Honors &amp; Awards">Prix &amp; Distinctions</h2>
+      <span class="rule"></span>
+    </div>
+
+    <div class="awards">
+      <div class="award">
+        <span class="yr">2017, 2018</span>
+        <div>
+          <div class="name" data-fr="Bourse Nationale d'Excellence (×2)" data-en="National Scholarship (×2)">Bourse Nationale d'Excellence (×2)</div>
+          <div class="org" data-fr="Top 0,2 % national · Ministère de l'Éducation, Chine" data-en="Top 0.2% nationally · Ministry of Education, China">Top 0,2 % national · Ministère de l'Éducation, Chine</div>
+        </div>
+      </div>
+      <div class="award">
+        <span class="yr">Nov. 2018</span>
+        <div>
+          <div class="name" data-fr="Premier Prix, Concours National de Modélisation Mathématique (CUMCM)" data-en="First Prize, National Mathematical Modeling Contest (CUMCM)">Premier Prix, Concours National de Modélisation Mathématique (CUMCM)</div>
+          <div class="org" data-fr="Ministère de l'Éducation, Chine" data-en="Ministry of Education, China">Ministère de l'Éducation, Chine</div>
+        </div>
+      </div>
+      <div class="award">
+        <span class="yr">Déc. 2022</span>
+        <div>
+          <div class="name" data-fr="Team Prix de la Contribution Exceptionnelle en R&amp;D en IA" data-en="Team Award for Exceptional AI R&amp;D Contribution">Team Prix de la Contribution Exceptionnelle en R&amp;D en IA</div>
+          <div class="org">ByteDance</div>
+        </div>
+      </div>
+      <div class="award">
+        <span class="yr">2017–2019</span>
+        <div>
+          <div class="name" data-fr="Bourse d'Excellence Académique (×3)" data-en="Academic Excellence Scholarship (×3)">Bourse d'Excellence Académique (×3)</div>
+          <div class="org">Université Normale du Jiangxi</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="talks">
+    <div class="section-head">
+      <span class="num">07</span>
+      <h2 data-fr="Conférences &amp; Mentorat" data-en="Talks &amp; Mentoring">Conférences &amp; Mentorat</h2>
+      <span class="rule"></span>
+    </div>
+
+    <div class="talk">
+      <div class="date">Oct. 2025</div>
+      <div>
+        <span class="name" data-fr="« Régularisation du champ de vecteurs dans le Flow Matching »" data-en="“Vector-field regularization in Flow Matching”">« Régularisation du champ de vecteurs dans le Flow Matching »</span>
+        <span class="venue" data-fr="· Conférencier invité, ISCIA Paris" data-en="· Invited speaker, ISCIA Paris">· Conférencier invité, ISCIA Paris</span>
+      </div>
+    </div>
+    <div class="talk">
+      <div class="date">Mai 2023</div>
+      <div>
+        <span class="name" data-fr="« Contourner l'aliasing dans NeRF : une approche de Fourier »" data-en="“Bypassing aliasing in NeRF: a Fourier approach”">« Contourner l'aliasing dans NeRF : une approche de Fourier »</span>
+        <span class="venue" data-fr="· Séminaire interne IA, ByteDance" data-en="· Internal AI seminar, ByteDance">· Séminaire interne IA, ByteDance</span>
+      </div>
+    </div>
+    <div class="talk">
+      <div class="date">Nov. 2022</div>
+      <div>
+        <span class="name" data-fr="« Optimisation de l'entraînement distribué à grande échelle »" data-en="“Optimizing large-scale distributed training”">« Optimisation de l'entraînement distribué à grande échelle »</span>
+        <span class="venue" data-fr="· Sommet de l'ingénierie de l'IA" data-en="· AI Engineering Summit">· Sommet de l'ingénierie de l'IA</span>
+      </div>
+    </div>
+    <div class="talk">
+      <div class="date" data-fr="Sept. 2025 – Présent" data-en="Sep 2025 – Present">Sept. 2025 – Présent</div>
+      <div>
+        <span class="name" data-fr="Assistant d'enseignement, Probabilités et Statistiques" data-en="Teaching assistant, Probability &amp; Statistics">Assistant d'enseignement, Probabilités et Statistiques</span>
+        <span class="venue" data-fr="· New Oriental Education" data-en="· New Oriental Education">· New Oriental Education</span>
+      </div>
+    </div>
+    <div class="talk">
+      <div class="date">2021 – 2023</div>
+      <div>
+        <span class="name" data-fr="Mentor industriel pour jeunes chercheurs (3 stagiaires)" data-en="Industry mentor for young researchers (3 interns)">Mentor industriel pour jeunes chercheurs (3 stagiaires)</span>
+        <span class="venue">· ByteDance</span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container">
+    <div class="name">Hao XIAO</div>
+    <div class="contact">
+      <a href="mailto:xiaohaofr@gmail.com">xiaohaofr@gmail.com</a>
+      <a href="https://github.com/xiao98" target="_blank" rel="noopener">github.com/xiao98</a>
+    </div>
+    <div class="copy" data-fr="© 2026 Hao XIAO · Boulogne-Billancourt, France" data-en="© 2026 Hao XIAO · Boulogne-Billancourt, France">© 2026 Hao XIAO · Boulogne-Billancourt, France</div>
+  </div>
+</footer>
+
+<script>
+  const TITLES = {
+    fr: "Hao XIAO — Chercheur en ML & Mathématiques Appliquées",
+    en: "Hao XIAO — Machine Learning & Applied Mathematics Researcher"
+  };
+
+  function setLang(lang) {
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-fr]').forEach(function (el) {
+      var v = lang === 'fr' ? el.getAttribute('data-fr') : el.getAttribute('data-en');
+      if (v != null) el.innerHTML = v;
+    });
+    document.title = TITLES[lang];
+    document.getElementById('btn-fr').classList.toggle('active', lang === 'fr');
+    document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+    try { localStorage.setItem('lang', lang); } catch (e) {}
+  }
+
+  (function () {
+    var saved = 'fr';
+    try { saved = localStorage.getItem('lang') || 'fr'; } catch (e) {}
+    setLang(saved);
+  })();
+</script>
+
+</body>
+</html>
