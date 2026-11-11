@@ -1,0 +1,10 @@
+name = "site-comments"
+main = "worker.js"
+compatibility_date = "2026-09-01"
+
+[vars]
+GITHUB_REPO = "xiao98/xiao98.github.io"
+GITHUB_BRANCH = "main"
+SITE_URL = "https://xiao98.github.io"
+# Comma-separated. Add e.g. "http://localhost:8000" to test from a local server.
+ALLOWED_ORIGINS = "https://xiao98.github.io"

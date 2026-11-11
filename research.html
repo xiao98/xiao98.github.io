@@ -1,0 +1,101 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Hao Xiao - Research</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<link rel="stylesheet" href="assets/css/custom.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<h1>Research</h1>
+
+							<section>
+								<h2>Interests</h2>
+
+								<p>I am interested in generative modeling, in particular flow matching and diffusion language models, and in the numerical side of it: ODE solvers for sampling and optimal transport on GPUs.</p>
+
+								<p>I also build LLM agents for tasks where correctness can be verified without an LLM in the loop, such as engineering simulation and formal proof.</p>
+
+								<h2>Preprints</h2>
+
+								<ul class="pubs">
+									<li>
+										<span class="pub-title">From Euler to Dormand–Prince: ODE Solvers for Flow Matching Generative Models</span>
+										<span class="pub-authors"><b>H. Xiao</b></span>
+										<span class="pub-venue">arXiv preprint, 2026.</span> <span class="pub-links"><a href="https://arxiv.org/abs/2605.00836" target="_blank">arXiv</a><a href="https://github.com/xiao98/ODE-Flow-Experiments" target="_blank">code</a></span>
+									</li>
+									<li>
+										<span class="pub-title">Fast Log-Domain Sinkhorn Optimal Transport with Warp-Level GPU Reductions</span>
+										<span class="pub-authors"><b>H. Xiao</b></span>
+										<span class="pub-venue">arXiv preprint, 2026.</span> <span class="pub-links"><a href="https://arxiv.org/abs/2605.00837" target="_blank">arXiv</a><a href="https://github.com/xiao98/Fast-Sinkhorn-CUDA" target="_blank">code</a></span>
+									</li>
+									<li>
+										<span class="pub-title">Sparse Regression under Correlation and Weak Signals: A Reproducible Benchmark of Classical and Bayesian Methods</span>
+										<span class="pub-authors"><b>H. Xiao</b></span>
+										<span class="pub-venue">arXiv preprint, 2026.</span> <span class="pub-links"><a href="https://arxiv.org/abs/2605.00835" target="_blank">arXiv</a><a href="https://github.com/xiao98/sparse-bayesian-regression-bench" target="_blank">code</a></span>
+									</li>
+								</ul>
+
+								<h2>Software</h2>
+
+								<ul class="pubs">
+									<li>
+										<span class="pub-title">SmokeAgent — LLM agent for fire-safety simulation</span>
+										<span class="pub-authors">Turns a French brief into a validated NIST FDS study. The LLM fills a typed scenario spec, a deterministic writer emits the input file, and repairs are JSON patches on the spec. On FireBench, built from NIST's own FDS validation suite, the agent reproduces FDS within the validation guide's uncertainty on 10/10 basic cases with no human edits.</span>
+										<span class="pub-links"><a href="https://github.com/xiao98/smoke-agent" target="_blank">code</a></span>
+									</li>
+									<li>
+										<span class="pub-title">OpenGOAL — long-horizon multi-agent orchestration</span>
+										<span class="pub-authors">A goal plus machine-checkable success criteria drives a persistent loop of role-based sub-agents (coder, tester, reviewer, debugger) that iterates until the criteria pass, with one git commit per iteration and budget guards.</span>
+										<span class="pub-links"><a href="https://github.com/xiao98/OpenGOAL" target="_blank">code</a></span>
+									</li>
+									<li>
+										<span class="pub-title">tinylm — the full LLM lifecycle from scratch</span>
+										<span class="pub-authors">Data, BPE tokenizer, GPT pre-training, SFT/DPO, int4/int8 quantization, evaluation with a contamination check, and sampling. Config-driven, CI-tested, runs on a laptop CPU.</span>
+										<span class="pub-links"><a href="https://github.com/xiao98/tinylm" target="_blank">code</a></span>
+									</li>
+									<li>
+										<span class="pub-title">presidio-fr — on-device masking of French personal data before it reaches an LLM</span>
+										<span class="pub-authors">Checksum-validated rules (NIR, SIREN/SIRET, IBAN) combined with a ModernBERT NER, shipped as a browser extension and as a local gateway that restores placeholders in streamed replies. Evaluated on FR-PII-Bench (300 documents, 2,105 entities): recall 0.990 at precision 0.973.</span>
+										<span class="pub-links"><a href="https://github.com/xiao98/presidio-fr-docs" target="_blank">docs</a><a href="https://huggingface.co/datasets/JaqueBill/fr-pii-bench" target="_blank">dataset</a></span>
+									</li>
+									<li>
+										<span class="pub-title">Pylean4 — Lean 4 kernel reimplemented in Python</span>
+										<span class="pub-authors">Dependent type checker (weak-head normal form, definitional equality, inductive types) with a minimal tactic framework and REPL.</span>
+										<span class="pub-links"><a href="https://github.com/xiao98/Pylean4" target="_blank">code</a></span>
+									</li>
+									<li>
+										<span class="pub-title">mini-cc — coding agent from scratch</span>
+										<span class="pub-authors">Tool-calling agent loop in TypeScript with streaming, an approval gate before side effects, and persistent sessions.</span>
+										<span class="pub-links"><a href="https://github.com/xiao98/mini-cc" target="_blank">code</a></span>
+									</li>
+								</ul>
+							</section>
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/site.js"></script>
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
