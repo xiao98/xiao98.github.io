@@ -22,7 +22,7 @@
 	var container = document.getElementById('comments');
 	if (!container) return;
 
-	// Post identifier, e.g. "thoughts/2026-02-12", derived from the page path relative to the site root.
+	// Post identifier, e.g. "notes/my-note", derived from the page path relative to the site root.
 		var root = document.currentScript.src.replace(/assets\/js\/comments\.js(\?.*)?$/, '');
 		var slug = container.getAttribute('data-slug') ||
 			location.href.split(/[?#]/)[0].slice(root.length).replace(/\.html$/, '').replace(/\/$/, '');

@@ -431,3 +431,84 @@
 		font-style: italic;
 		margin-top: -0.6em;
 	}
+
+/* Additions for this site. */
+
+/* Skip link: visible only when focused. */
+
+	.skip-link {
+		background: #fff;
+		left: -9999px;
+		padding: 0.5rem 0.75rem;
+		position: absolute;
+		top: 0.5rem;
+	}
+
+	.skip-link:focus {
+		left: 0.5rem;
+		z-index: 10;
+	}
+
+	a:focus-visible {
+		outline: solid 2px var(--link);
+		outline-offset: 3px;
+	}
+
+/* Home: name and identity next to the photo. */
+
+	#main .identity {
+		color: var(--muted);
+		margin-top: -0.75rem;
+	}
+
+/* Projects and CV: subtitle under a heading, topics line, institution with its programme. */
+
+	#main .subtitle {
+		color: var(--muted);
+		font-style: italic;
+		margin: -0.5rem 0 0.6rem 0;
+	}
+
+	#main .topics {
+		color: var(--muted);
+		margin-bottom: 0.4em;
+	}
+
+	#main .entry-links a {
+		margin-right: 1rem;
+	}
+
+/* Print (CV): content only, black on white. */
+
+	@media print {
+		.site-header, .site-footer, .skip-link {
+			display: none;
+		}
+
+		body, input, select, textarea {
+			color: #000;
+			font-size: 10.5pt;
+			line-height: 1.45;
+		}
+
+		#main {
+			padding-top: 0;
+		}
+
+		#main a {
+			color: #000;
+		}
+
+		#main h2, #main h3 {
+			break-after: avoid;
+		}
+
+		#main li {
+			break-inside: avoid;
+		}
+
+		@page {
+			margin: 16mm;
+			size: A4;
+		}
+	}

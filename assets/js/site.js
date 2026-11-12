@@ -1,6 +1,7 @@
 /*
-	Shared page elements, inserted on every page: header with the site name and navigation, footer,
-	"Back to blog" link on posts, and math rendering (KaTeX) on pages that contain formulas.
+	Shared page elements, inserted on every page: skip link, header with the site name and navigation,
+	footer, "All notes" link on notes, time-limited content, and math rendering (KaTeX) on pages that
+	contain formulas.
 	Styled by assets/css/custom.css.
 	To add a menu entry, edit MENU below (paths are relative to the site root).
 */
@@ -8,49 +9,60 @@
 (function() {
 
 	var MENU = [
-		['index.html', 'Home'],
-		['research.html', 'Research'],
-		['blog.html', 'Blog']
+		['', 'Home'],
+		['research/', 'Research'],
+		['projects/', 'Projects'],
+		['art/', 'Art'],
+		['notes/', 'Notes'],
+		['cv/', 'CV']
 	];
 
 	// Site root, derived from this script's own URL so that pages in subfolders work.
 		var root = document.currentScript.src.replace(/assets\/js\/site\.js(\?.*)?$/, '');
 
-	// Current section: the page itself, or Blog for posts.
-		var page = location.href.split(/[?#]/)[0];
-		if (page == root) page = root + 'index.html';
-		if (page.indexOf(root + 'thoughts/') == 0) page = root + 'blog.html';
+	// Current section: the page itself, or Notes for a note.
+		var page = location.href.split(/[?#]/)[0].replace(/index\.html$/, '');
+		var isNote = page.indexOf(root + 'notes/') == 0 && page != root + 'notes/';
 
 	var items = MENU.map(function(entry) {
-		var href = root + entry[0];
-		return '<li><a href="' + href + '"' + (href == page ? ' aria-current="page"' : '') + '>' + entry[1] + '</a></li>';
+		var href = root + entry[0],
+			current = entry[0] ? page.indexOf(href) == 0 : page == root;
+		return '<li><a href="' + href + '"' + (current ? ' aria-current="page"' : '') + '>' + entry[1] + '</a></li>';
 	}).join('');
 
 	var html =
+		'<a class="skip-link" href="#main">Skip to content</a>' +
 		'<header class="site-header"><div class="site-header-inner">' +
-			'<a class="site-name" href="' + root + 'index.html">Hao Xiao</a>' +
-			'<nav class="site-nav" aria-label="Main"><ul>' + items + '</ul></nav>' +
+			'<a class="site-name" href="' + root + '">Hao Xiao</a>' +
+			'<nav class="site-nav" aria-label="Primary"><ul>' + items + '</ul></nav>' +
 		'</div></header>';
 
 	var wrapper = document.getElementById('wrapper');
 	wrapper.insertAdjacentHTML('afterbegin', html);
 
-	// Blog posts: a link back to the list, before the comments if there are any.
-		if (location.href.indexOf(root + 'thoughts/') == 0) {
+	// Notes: a link back to the list, before the comments if there are any.
+		if (isNote) {
 			var inner = document.querySelector('#main .inner'),
 				back = document.createElement('p');
 
 			document.body.classList.add('is-post');
 			back.className = 'post-back';
-			back.innerHTML = '<a href="' + root + 'blog.html">Back to blog</a>';
+			back.innerHTML = '<a href="' + root + 'notes/">All notes</a>';
 			inner.insertBefore(back, document.getElementById('comments'));
 		}
 
-	// Footer. The date is the page's last modification, as sent by the server.
-		var updated = new Date(document.lastModified).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+	// Time-limited content: <p data-expires="YYYY-MM-DD"> is removed from that day on (Paris time).
+		var today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Paris' });
+		Array.prototype.forEach.call(document.querySelectorAll('[data-expires]'), function(element) {
+			if (today >= element.getAttribute('data-expires')) element.remove();
+		});
+
+	// Footer.
 		wrapper.insertAdjacentHTML('beforeend',
 			'<footer class="site-footer"><div class="site-footer-inner">' +
-				'&copy; Hao Xiao &middot; Last updated ' + updated +
+				'&copy; ' + new Date().getFullYear() + ' Hao Xiao' +
+				' &middot; <a href="https://github.com/xiao98">GitHub</a>' +
+				' &middot; <a href="' + root + 'cv/">CV</a>' +
 				' &middot; Design based on <a href="https://html5up.net">HTML5 UP</a>' +
 			'</div></footer>');
 

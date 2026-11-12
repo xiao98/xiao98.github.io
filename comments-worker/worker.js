@@ -63,7 +63,7 @@ export default {
 		if (!check.success) return reply(403, { error: 'spam check failed, please try again' });
 
 		// The post must exist on the site, so comments cannot be attached to arbitrary paths.
-		const page = await fetch(`${env.SITE_URL}/${slug}.html`, { method: 'HEAD' });
+		const page = await fetch(`${env.SITE_URL}/${slug}/`, { method: 'HEAD' });
 		if (!page.ok) return reply(400, { error: 'unknown post' });
 
 		const date = new Date().toISOString();
@@ -98,7 +98,7 @@ export default {
 				title: `${parent ? 'Reply' : 'Comment'} by ${name.replace(/@/g, '')} on ${slug}`,
 				head: branch,
 				base: env.GITHUB_BRANCH,
-				body: `New comment on ${env.SITE_URL}/${slug}.html${inReplyTo}\n\nMerge to publish, close to reject. The text is in the "Files changed" tab.`,
+				body: `New comment on ${env.SITE_URL}/${slug}/${inReplyTo}\n\nMerge to publish, close to reject. The text is in the "Files changed" tab.`,
 			});
 		} catch (error) {
 			console.error(error);

@@ -4,15 +4,32 @@
 	html5up.net | @ajlkn
 	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
 -->
-<html>
+<html lang="en">
 	<head>
-		<title>Hao Xiao</title>
+		<title>Hao Xiao — Mathematics &amp; AI</title>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<meta name="description" content="Hao Xiao — M2 student in Mathematics and AI at Université Paris-Saclay. Generative models, optimal transport, LLM agents." />
-		<link rel="stylesheet" href="assets/css/main.css" />
-		<link rel="stylesheet" href="assets/css/custom.css" />
-		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="Hao Xiao is a mathematics and AI master's student at Université Paris-Saclay, interested in reinforcement learning, LLM reasoning, and autonomous agents." />
+		<link rel="canonical" href="https://xiao98.github.io/" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Hao Xiao" />
+		<meta property="og:title" content="Hao Xiao — Mathematics &amp; AI" />
+		<meta property="og:description" content="Hao Xiao is a mathematics and AI master's student at Université Paris-Saclay, interested in reinforcement learning, LLM reasoning, and autonomous agents." />
+		<meta property="og:url" content="https://xiao98.github.io/" />
+		<meta name="twitter:card" content="summary" />
+		<script type="application/ld+json">
+		{
+			"@context": "https://schema.org",
+			"@type": "Person",
+			"name": "Hao Xiao",
+			"url": "https://xiao98.github.io/",
+			"description": "Master's student in Mathematics and Artificial Intelligence at Université Paris-Saclay, interested in reinforcement learning, LLM reasoning, and autonomous agents.",
+			"sameAs": ["https://github.com/xiao98"]
+		}
+		</script>
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<link rel="stylesheet" href="/assets/css/custom.css" />
+		<noscript><link rel="stylesheet" href="/assets/css/noscript.css" /></noscript>
 	</head>
 	<body class="is-preload">
 		<!-- Wrapper -->
@@ -23,52 +40,65 @@
 						<div class="inner">
 							<section>
 								<section>
-									<span class="image left"><img src="images/photo.jpg" style="max-height: 250px;max-width: 250px;" alt=""/></span>
-									<p>
-										I am a second-year master's (M2) student in <a href="https://www.universite-paris-saclay.fr/formation/master/mathematiques-et-applications/m2-mathematiques-et-intelligence-artificielle">Mathematics and Artificial Intelligence</a> at Université Paris-Saclay, where I also take electives from the MVA programme at ENS Paris-Saclay.
-										My <a href="research.html">research interests</a> lie in generative models (flow matching, diffusion language models), optimal transport, and LLM agents.
-									</p>
-									<p>
-										I like work that ends in something checkable: a preprint with code, a benchmark, or a system whose acceptance criteria can be run by a machine.
-									</p>
-									<p>
-										I am looking for a 6-month end-of-studies research internship starting in March 2027.
-									</p>
-									<p>
-										<b>Contact:</b> xiaohaofr@gmail.com
+									<span class="image left"><img src="/images/photo.jpg" style="max-height: 250px;max-width: 250px;" alt="Portrait of Hao Xiao" /></span>
+									<h1>Hao Xiao</h1>
+									<p class="identity">
+										Master's Student in Mathematics &amp; Artificial Intelligence<br />
+										Université Paris-Saclay, France
 									</p>
 									<p class="profile-links">
-										<a href="https://github.com/xiao98" target="_blank"><i class="fab fa-github"></i>GitHub</a>
+										<a href="https://github.com/xiao98">GitHub</a>
+										<a href="/cv/">CV</a>
+									</p>
+									<p>
+										I am a master's student in Mathematics and Artificial Intelligence (M2 MIA) at Université Paris-Saclay. Previously, I studied Computer Science at Sorbonne Université (Master 1).
+									</p>
+									<p>
+										My research interests lie at the intersection of reinforcement learning, large language models, and autonomous agents. I am particularly interested in how agents can learn from interaction, reason over long horizons, and improve their problem-solving strategies through experience and verifiable feedback.
+									</p>
+									<p>
+										Before focusing on mathematics and AI, I worked as a film director and photographer. My creative practice also includes moving-image work, web-based art, and computational approaches to visual expression. Outside research, I am interested in quantitative trading and cryptocurrency markets.
+									</p>
+									<p>
+										Alongside my studies, I participate in the Pépite PEIPS entrepreneurship support program.
+									</p>
+									<p data-expires="2027-04-01">
+										I am looking for a research internship in reinforcement learning, LLM reasoning, or autonomous agents for April–September 2027.
 									</p>
 								</section>
 
 								<section>
-								<h2>Blog</h2>
-
-								<ul id="posts" data-limit="3"></ul>
-								<p><a href="blog.html">All blog posts</a></p>
+									<h2>Selected projects</h2>
+									<ul class="pubs">
+										<li>
+											<span class="pub-title"><a href="/projects/#opengoal">OpenGOAL</a></span>
+											<span class="pub-authors">A framework for persistent, iterative work on programming and mathematical tasks with explicit success criteria.</span>
+										</li>
+										<li>
+											<span class="pub-title"><a href="/projects/#smokeagent">SmokeAgent</a></span>
+											<span class="pub-authors">A research prototype connecting language-model planning with deterministic fire and smoke simulation workflows.</span>
+										</li>
+										<li>
+											<span class="pub-title"><a href="/projects/#fast-sinkhorn-cuda">Fast-Sinkhorn-CUDA</a></span>
+											<span class="pub-authors">A C++/CUDA implementation of regularized optimal transport using log-domain Sinkhorn iterations.</span>
+										</li>
+									</ul>
+									<p><a href="/projects/">All projects →</a></p>
 								</section>
 
 								<section>
-								<h2>Preprints</h2>
-								<ul class="pubs">
-									<li>
-										<span class="pub-title">From Euler to Dormand–Prince: ODE Solvers for Flow Matching Generative Models</span>
-										<span class="pub-authors"><b>H. Xiao</b></span>
-										<span class="pub-venue">arXiv preprint, 2026.</span> <span class="pub-links"><a href="https://arxiv.org/abs/2605.00836" target="_blank">arXiv</a><a href="https://github.com/xiao98/ODE-Flow-Experiments" target="_blank">code</a></span>
-									</li>
-									<li>
-										<span class="pub-title">Fast Log-Domain Sinkhorn Optimal Transport with Warp-Level GPU Reductions</span>
-										<span class="pub-authors"><b>H. Xiao</b></span>
-										<span class="pub-venue">arXiv preprint, 2026.</span> <span class="pub-links"><a href="https://arxiv.org/abs/2605.00837" target="_blank">arXiv</a><a href="https://github.com/xiao98/Fast-Sinkhorn-CUDA" target="_blank">code</a></span>
-									</li>
-									<li>
-										<span class="pub-title">Sparse Regression under Correlation and Weak Signals: A Reproducible Benchmark of Classical and Bayesian Methods</span>
-										<span class="pub-authors"><b>H. Xiao</b></span>
-										<span class="pub-venue">arXiv preprint, 2026.</span> <span class="pub-links"><a href="https://arxiv.org/abs/2605.00835" target="_blank">arXiv</a><a href="https://github.com/xiao98/sparse-bayesian-regression-bench" target="_blank">code</a></span>
-									</li>
-								</ul>
-								<p><a href="research.html">Research and software</a></p>
+									<h2>Latest notes</h2>
+									<ul id="posts" data-limit="3"></ul>
+									<p><a href="/notes/">All notes</a></p>
+								</section>
+
+								<section>
+									<h2>Contact</h2>
+									<p>I am interested in research collaborations involving reinforcement learning, LLM reasoning, and autonomous agents.</p>
+									<p class="profile-links">
+										<a href="https://github.com/xiao98">GitHub</a>
+										<a href="/cv/">CV</a>
+									</p>
 								</section>
 							</section>
 						</div>
@@ -77,13 +107,13 @@
 			</div>
 
 		<!-- Scripts -->
-			<script src="assets/js/site.js"></script>
-			<script src="assets/js/posts.js"></script>
-			<script src="assets/js/jquery.min.js"></script>
-			<script src="assets/js/browser.min.js"></script>
-			<script src="assets/js/breakpoints.min.js"></script>
-			<script src="assets/js/util.js"></script>
-			<script src="assets/js/main.js"></script>
+			<script src="/assets/js/site.js"></script>
+			<script src="/assets/js/posts.js"></script>
+			<script src="/assets/js/jquery.min.js"></script>
+			<script src="/assets/js/browser.min.js"></script>
+			<script src="/assets/js/breakpoints.min.js"></script>
+			<script src="/assets/js/util.js"></script>
+			<script src="/assets/js/main.js"></script>
 
 	</body>
 </html>

@@ -58,8 +58,8 @@ merged comment's branch is cleaned up.
 
 ## Day to day
 
-- **New post**: copy `thoughts/_template.html` and add a line to `POSTS` in `assets/js/posts.js`,
-  which feeds the Blog page and the latest posts on the home page.
+- **New note**: copy `notes/_template.html` to `notes/<slug>/index.html` and add a line to `POSTS` in `assets/js/posts.js`,
+  which feeds the Notes page and the latest notes on the home page.
   Comments work automatically on any page containing `<div id="comments"></div>`.
 - **Moderating**: each comment arrives as a pull request (GitHub notifies you). The text is in "Files changed".
   Merge to publish, close to reject. The comment shows up immediately after merging, since the page reads the

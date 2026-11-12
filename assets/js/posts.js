@@ -1,7 +1,8 @@
 /*
-	List of blog posts, rendered into <ul id="posts"></ul> (blog.html) and
-	<ul id="posts" data-limit="3"></ul> (index.html, latest posts only).
-	To publish a new post, add one line to POSTS (paths are relative to the site root).
+	List of notes, rendered into <ul id="posts"></ul> (notes/) and
+	<ul id="posts" data-limit="3"></ul> (home page, latest notes only).
+	To publish a note, copy notes/_template.html to notes/<slug>/index.html and add one line to POSTS:
+	[date as YYYY/MM/DD, slug, title].
 */
 
 (function() {
@@ -20,6 +21,13 @@
 		var limit = parseInt(list.getAttribute('data-limit'), 10);
 		if (limit) posts = posts.slice(0, limit);
 
+	// No notes: the home page drops its "Latest notes" section, the Notes page says so.
+		if (!posts.length) {
+			if (limit) list.closest('section').remove();
+			else list.outerHTML = '<p>No notes published yet.</p>';
+			return;
+		}
+
 	// Dates are written YYYY/MM/DD and shown as e.g. "12 Feb 2026".
 		var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 		function formatDate(date) {
@@ -29,8 +37,6 @@
 
 	list.className = 'post-list';
 
-	if (!posts.length) list.innerHTML = '<li class="post-date">No posts yet.</li>';
-
 	posts.forEach(function(post) {
 		var item = document.createElement('li'),
 			date = document.createElement('span'),
@@ -38,7 +44,7 @@
 
 		date.className = 'post-date';
 		date.textContent = formatDate(post[0]);
-		link.href = root + post[1];
+		link.href = root + 'notes/' + post[1] + '/';
 		link.textContent = post[2];
 		item.appendChild(date);
 		item.appendChild(link);
