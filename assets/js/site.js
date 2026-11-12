@@ -12,7 +12,7 @@
 		['', 'Home'],
 		['research/', 'Research'],
 		['projects/', 'Projects'],
-		['art/', 'Art'],
+		['interests/', 'Interests'],
 		['notes/', 'Notes'],
 		['cv/', 'CV']
 	];
