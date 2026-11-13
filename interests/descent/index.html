@@ -31,7 +31,7 @@
 
 <div class="layer" id="head">
 	<h1>Descent</h1>
-	<p>A neural network learning a drawing, live</p>
+	<p>A neural network learning a drawing, live<br />Behind it, what it drew before</p>
 	<p id="stats"></p>
 </div>
 <pre class="layer" id="feed" aria-hidden="true"></pre>
@@ -57,7 +57,8 @@
 	every line is a weight, every point a neuron or a pixel, every number a live value.
 
 	From one end to the other: the drawing (64 x 64 points), 18 input features (ring), three layers of
-	64 neurons, one output neuron, and what the network currently draws (64 x 64 points).
+	64 neurons, one output neuron, what the network currently draws (64 x 64 points), and behind it
+	what it drew before: time is the last stretch of the same axis.
 	Cyan is positive, magenta negative. A line glows by |weight x activation| for the probed position.
 */
 import * as THREE from 'three';
@@ -201,7 +202,7 @@ const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true; controls.enablePan = false;
 controls.autoRotate = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 controls.autoRotateSpeed = 0.55;
-controls.minDistance = 8; controls.maxDistance = 70;
+controls.minDistance = 8; controls.maxDistance = 160;
 
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
@@ -235,12 +236,12 @@ const pointMaterial = new THREE.ShaderMaterial({
 	fragmentShader: 'varying vec3 vTint; void main() { float d = length(gl_PointCoord - 0.5); gl_FragColor = vec4(vTint * smoothstep(0.5, 0.08, d), 1.0); }',
 	blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false, transparent: true
 });
-function points(count, size) {
+function points(count, size, material = pointMaterial) {
 	const geometry = new THREE.BufferGeometry();
 	geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(count * 3), 3));
 	geometry.setAttribute('tint', new THREE.BufferAttribute(new Float32Array(count * 3), 3));
 	geometry.setAttribute('size', new THREE.BufferAttribute(new Float32Array(count).fill(size), 1));
-	const object = new THREE.Points(geometry, pointMaterial);
+	const object = new THREE.Points(geometry, material);
 	object.frustumCulled = false;
 	scene.add(object);
 	return { position: geometry.attributes.position, tint: geometry.attributes.tint, size: geometry.attributes.size };
@@ -262,6 +263,33 @@ const inPlane = points(N * N, 0.06), outPlane = points(N * N, 0.06);
 for (let py = 0; py < N; py++) for (let px = 0; px < N; px++) {
 	pixel(X_IN, px, py, inPlane.position.array, (py * N + px) * 3);
 	pixel(X_OUT, px, py, outPlane.position.array, (py * N + px) * 3);
+}
+
+// Time: what the network drew before stays behind the output plane, one layer per moment, the most
+// recent nearest. White is what was there; cyan what was appearing, magenta what was disappearing.
+const LAYERS = 64, GAP = 0.22, EVERY = 12;
+const trailMaterial = new THREE.ShaderMaterial({
+	uniforms: { scale: pointMaterial.uniforms.scale, start: { value: X_OUT }, depth: { value: LAYERS * GAP } },
+	vertexShader: 'attribute float size; attribute vec3 tint; varying vec3 vTint; uniform float scale, start, depth;' +
+		'void main() { float age = (position.x - start) / depth; vTint = tint * pow(1.0 - age, 1.5);' +
+		'vec4 mv = modelViewMatrix * vec4(position, 1.0); gl_PointSize = size * scale / -mv.z; gl_Position = projectionMatrix * mv; }',
+	fragmentShader: pointMaterial.fragmentShader,
+	blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false, transparent: true
+});
+const trail = points(LAYERS * N * N, 0.06, trailMaterial), before = new Float32Array(N * N);
+for (let s = 0; s < LAYERS; s++) for (let py = 0; py < N; py++) for (let px = 0; px < N; px++)
+	pixel(X_OUT + GAP * (s + 1), px, py, trail.position.array, ((s * N + py) * N + px) * 3);
+
+function remember() {
+	const tint = trail.tint.array;
+	tint.copyWithin(N * N * 3, 0, (LAYERS - 1) * N * N * 3);
+	for (let i = 0; i < N * N; i++) {
+		const v = output[i], d = v - before[i], m = Math.min(1, Math.abs(d) * 5), c = d > 0 ? POSITIVE : NEGATIVE;
+		const white = v * v * 0.3 * (1 - m), k = m * 0.7;
+		tint[i * 3] = white + c[0] * k; tint[i * 3 + 1] = white + c[1] * k; tint[i * 3 + 2] = white + c[2] * k;
+		before[i] = v;
+	}
+	trail.tint.needsUpdate = true;
 }
 
 // Neurons.
@@ -304,10 +332,11 @@ function resize() {
 	renderer.setSize(w, h, false); composer.setSize(w, h); bloom.setSize(w, h);
 	camera.aspect = w / h; camera.updateProjectionMatrix();
 	pointMaterial.uniforms.scale.value = h * renderer.getPixelRatio() * 1.25;
-	const distance = 25 / Math.min(1, camera.aspect / 1.55);
-	camera.position.setLength(distance);
+	const distance = 40 / Math.min(1, camera.aspect / 1.55);
+	camera.position.sub(controls.target).setLength(distance).add(controls.target);
 }
-camera.position.set(9, 7, 24);
+controls.target.set(7, 0, 0);
+camera.position.set(-6, 8, 26);
 window.addEventListener('resize', resize);
 resize();
 
@@ -365,6 +394,7 @@ function tick(time) {
 		outTint[i * 3] = b * 0.75; outTint[i * 3 + 1] = b * 0.95; outTint[i * 3 + 2] = b;
 	}
 	inPlane.tint.needsUpdate = outPlane.tint.needsUpdate = true;
+	if (frame % EVERY == 0) remember();
 
 	// Probe: glides over the drawing.
 	const t = time * 0.001;
