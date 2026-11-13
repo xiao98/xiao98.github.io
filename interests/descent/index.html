@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Descent — Hao Xiao</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Descent: a small neural network trained live in the browser to reproduce whatever is drawn on the screen." />
+<link rel="canonical" href="https://xiao98.github.io/interests/descent/" />
+<style>
+	html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+	canvas { display: block; width: 100vw; height: 100vh; touch-action: none; cursor: crosshair; }
+	nav { position: fixed; left: 0; right: 0; bottom: 0; padding: 14px 18px; display: flex; gap: 18px; font: 12px/1 ui-monospace, Consolas, Menlo, monospace; }
+	nav button, nav a { background: none; border: 0; padding: 0; font: inherit; color: #6f6; opacity: .75; cursor: pointer; text-decoration: none; letter-spacing: .08em; }
+	nav button:hover, nav a:hover, nav button:focus-visible, nav a:focus-visible { opacity: 1; outline: none; text-decoration: underline; }
+	nav a { margin-left: auto; color: #999; }
+</style>
+</head>
+<body>
+<canvas id="c" aria-label="A neural network learning, live, to reproduce the drawing in the left square"></canvas>
+<nav>
+	<button id="clear" type="button">CLEAR DRAWING</button>
+	<button id="reset" type="button">RESET NETWORK</button>
+	<a href="/interests/">HAO XIAO</a>
+</nav>
+<script>
+/*
+	Descent.
+	A multilayer perceptron is trained in this page, by gradient descent, to reproduce the drawing in the
+	left square: it maps a position (x, y) to the brightness of the drawing there. Everything shown is the
+	network itself: every line is one weight (red positive, green negative), every dot one neuron, the
+	right square is what the network currently outputs.
+*/
+(function() {
+
+	// ---- Network: (x, y) -> Fourier features -> 3 hidden layers of tanh -> 1 sigmoid output.
+	var FREQS = [1, 2, 4, 8];
+	var SIZES = [2 + 4 * FREQS.length, 24, 24, 24, 1];
+	var L = SIZES.length - 1;
+	var N = 64;					// the drawing is N x N
+	var BATCH = 64, STEPS_PER_FRAME = 6, RATE = 0.01;
+
+	var W, B, mW, vW, mB, vB, gW, gB, act, delta, step, loss, history;
+
+	function reset() {
+		W = []; B = []; mW = []; vW = []; mB = []; vB = []; gW = []; gB = [];
+		for (var l = 0; l < L; l++) {
+			var nIn = SIZES[l], nOut = SIZES[l + 1], range = Math.sqrt(6 / (nIn + nOut));
+			var w = new Float32Array(nIn * nOut);
+			for (var i = 0; i < w.length; i++) w[i] = (Math.random() * 2 - 1) * range;
+			W.push(w); B.push(new Float32Array(nOut));
+			mW.push(new Float32Array(w.length)); vW.push(new Float32Array(w.length)); gW.push(new Float32Array(w.length));
+			mB.push(new Float32Array(nOut)); vB.push(new Float32Array(nOut)); gB.push(new Float32Array(nOut));
+		}
+		act = SIZES.map(function(n) { return new Float32Array(n); });
+		delta = SIZES.map(function(n) { return new Float32Array(n); });
+		step = 0; loss = 0.69; history = [];
+	}
+
+	// Forward pass for the position (x, y), both in [-1, 1]. Returns the output; activations stay in act.
+	function forward(x, y) {
+		var a = act[0], k = 2;
+		a[0] = x; a[1] = y;
+		for (var f = 0; f < FREQS.length; f++) {
+			var p = FREQS[f] * Math.PI;
+			a[k++] = Math.sin(p * x); a[k++] = Math.cos(p * x);
+			a[k++] = Math.sin(p * y); a[k++] = Math.cos(p * y);
+		}
+		for (var l = 0; l < L; l++) {
+			var nIn = SIZES[l], nOut = SIZES[l + 1], w = W[l], b = B[l], from = act[l], to = act[l + 1];
+			for (var j = 0; j < nOut; j++) {
+				var z = b[j], o = j * nIn;
+				for (var i = 0; i < nIn; i++) z += w[o + i] * from[i];
+				to[j] = l < L - 1 ? Math.tanh(z) : 1 / (1 + Math.exp(-z));
+			}
+		}
+		return act[L][0];
+	}
+
+	// One step of gradient descent (Adam) on a random batch of positions of the drawing.
+	function train(target) {
+		var l, i, j, total = 0;
+		for (l = 0; l < L; l++) { gW[l].fill(0); gB[l].fill(0); }
+
+		for (var s = 0; s < BATCH; s++) {
+			var px = Math.random() * N | 0, py = Math.random() * N | 0, t = target[py * N + px];
+			var p = forward(px / (N - 1) * 2 - 1, py / (N - 1) * 2 - 1);
+			total -= t * Math.log(p + 1e-7) + (1 - t) * Math.log(1 - p + 1e-7);
+
+			delta[L][0] = p - t;
+			for (l = L - 1; l >= 0; l--) {
+				var nIn = SIZES[l], nOut = SIZES[l + 1], w = W[l], g = gW[l], from = act[l], d = delta[l + 1], dPrev = delta[l];
+				if (l > 0) dPrev.fill(0);
+				for (j = 0; j < nOut; j++) {
+					var dj = d[j], o = j * nIn;
+					gB[l][j] += dj;
+					for (i = 0; i < nIn; i++) {
+						g[o + i] += dj * from[i];
+						if (l > 0) dPrev[i] += w[o + i] * dj;
+					}
+				}
+				if (l > 0) for (i = 0; i < nIn; i++) dPrev[i] *= 1 - from[i] * from[i];
+			}
+		}
+
+		step++;
+		var c1 = 1 - Math.pow(0.9, step), c2 = 1 - Math.pow(0.999, step);
+		function update(x, g, m, v) {
+			for (var k = 0; k < x.length; k++) {
+				var gk = g[k] / BATCH;
+				m[k] = 0.9 * m[k] + 0.1 * gk;
+				v[k] = 0.999 * v[k] + 0.001 * gk * gk;
+				x[k] -= RATE * (m[k] / c1) / (Math.sqrt(v[k] / c2) + 1e-8);
+			}
+		}
+		for (l = 0; l < L; l++) { update(W[l], gW[l], mW[l], vW[l]); update(B[l], gB[l], mB[l], vB[l]); }
+		loss = 0.98 * loss + 0.02 * total / BATCH;
+	}
+
+	// ---- The drawing (left square) and the network's output (right square), both N x N.
+	var pad = document.createElement('canvas'), padCtx = pad.getContext('2d', { willReadFrequently: true });
+	var out = document.createElement('canvas'), outCtx = out.getContext('2d');
+	pad.width = pad.height = out.width = out.height = N;
+	var target = new Float32Array(N * N), outImage = outCtx.createImageData(N, N), scan = 0;
+
+	function readTarget() {
+		var data = padCtx.getImageData(0, 0, N, N).data;
+		for (var i = 0; i < N * N; i++) target[i] = data[i * 4] / 255;
+	}
+	function clearPad() { padCtx.fillStyle = '#000'; padCtx.fillRect(0, 0, N, N); readTarget(); }
+	function stroke(x0, y0, x1, y1) {
+		padCtx.strokeStyle = '#fff'; padCtx.lineWidth = 3.5; padCtx.lineCap = 'round';
+		padCtx.beginPath(); padCtx.moveTo(x0, y0); padCtx.lineTo(x1, y1); padCtx.stroke();
+		readTarget();
+	}
+	// Starting drawing: a spiral.
+	clearPad();
+	(function() {
+		var x0, y0;
+		for (var a = 0; a < 15; a += 0.1) {
+			var r = 1.8 * a, x = N / 2 + r * Math.cos(a), y = N / 2 + r * Math.sin(a);
+			if (a > 0) stroke(x0, y0, x, y);
+			x0 = x; y0 = y;
+		}
+	})();
+
+	// ---- Screen.
+	var canvas = document.getElementById('c'), ctx = canvas.getContext('2d');
+	var width, height, padRect, outRect, net, nodes;
+
+	function layout() {
+		var ratio = window.devicePixelRatio || 1;
+		width = window.innerWidth; height = window.innerHeight;
+		canvas.width = width * ratio; canvas.height = height * ratio;
+		ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+		var m = Math.max(18, width * 0.03), s;
+		if (width > height) {
+			s = Math.min(height * 0.42, width * 0.2);
+			padRect = { x: m, y: (height - s) / 2, s: s };
+			outRect = { x: width - m - s, y: (height - s) / 2, s: s };
+			net = { x0: m + s + m * 1.5, x1: width - m - s - m * 1.5, y0: height * 0.1, y1: height * 0.86 };
+		} else {
+			s = Math.min((width - 3 * m) / 2, height * 0.28);
+			padRect = { x: m, y: 56, s: s };
+			outRect = { x: width - m - s, y: 56, s: s };
+			net = { x0: m + 6, x1: width - m - 6, y0: 56 + s + 44, y1: height - 96 };
+		}
+		nodes = SIZES.map(function(n, l) {
+			var x = net.x0 + (net.x1 - net.x0) * l / L, list = [];
+			for (var i = 0; i < n; i++) list.push([x, n == 1 ? (net.y0 + net.y1) / 2 : net.y0 + (net.y1 - net.y0) * i / (n - 1)]);
+			return list;
+		});
+	}
+
+	var MONO = 'px ui-monospace, Consolas, Menlo, monospace';
+	var probe = { x: 0, y: 0 }, frame = 0;
+
+	function draw() {
+		var l, i, j;
+		ctx.fillStyle = '#000'; ctx.fillRect(0, 0, width, height);
+
+		// Weights: one line each. Red positive, green negative, opacity by magnitude.
+		ctx.lineWidth = 1;
+		for (l = 0; l < L; l++) {
+			var nIn = SIZES[l], nOut = SIZES[l + 1], w = W[l], from = nodes[l], to = nodes[l + 1];
+			for (j = 0; j < nOut; j++) for (i = 0; i < nIn; i++) {
+				var v = w[j * nIn + i], a = Math.min(0.75, Math.abs(v) * 0.38);
+				if (a < 0.03) continue;
+				ctx.strokeStyle = v > 0 ? 'rgba(255,60,60,' + a + ')' : 'rgba(40,255,120,' + a + ')';
+				ctx.beginPath(); ctx.moveTo(from[i][0], from[i][1]); ctx.lineTo(to[j][0], to[j][1]); ctx.stroke();
+			}
+		}
+
+		// Neurons: activations for the probed position, which moves along the drawing.
+		if (frame % 6 == 0) { probe.x = Math.random() * N | 0; probe.y = Math.random() * N | 0; }
+		var value = forward(probe.x / (N - 1) * 2 - 1, probe.y / (N - 1) * 2 - 1);
+		for (l = 0; l <= L; l++) for (i = 0; i < SIZES[l]; i++) {
+			var x = act[l][i], strength = Math.min(1, Math.abs(x));
+			ctx.fillStyle = l == L ? 'rgba(255,255,255,' + (0.25 + 0.75 * x) + ')'
+				: x > 0 ? 'rgba(255,90,90,' + (0.2 + 0.8 * strength) + ')' : 'rgba(60,255,130,' + (0.2 + 0.8 * strength) + ')';
+			ctx.beginPath(); ctx.arc(nodes[l][i][0], nodes[l][i][1], 1.5 + 3 * strength, 0, 6.2832); ctx.fill();
+		}
+
+		// The two squares.
+		ctx.imageSmoothingEnabled = false;
+		ctx.drawImage(pad, padRect.x, padRect.y, padRect.s, padRect.s);
+		ctx.drawImage(out, outRect.x, outRect.y, outRect.s, outRect.s);
+		ctx.strokeStyle = 'rgba(255,255,255,.35)';
+		ctx.strokeRect(padRect.x + .5, padRect.y + .5, padRect.s, padRect.s);
+		ctx.strokeRect(outRect.x + .5, outRect.y + .5, outRect.s, outRect.s);
+
+		// Probe marker and scan line.
+		var cell = padRect.s / N;
+		ctx.strokeStyle = '#6f6';
+		ctx.strokeRect(padRect.x + probe.x * cell - 3, padRect.y + probe.y * cell - 3, cell + 6, cell + 6);
+		ctx.fillStyle = 'rgba(100,255,100,.5)';
+		ctx.fillRect(outRect.x, outRect.y + scan * outRect.s / N, outRect.s, 1);
+
+		// Text.
+		ctx.fillStyle = '#6f6'; ctx.font = '11' + MONO; ctx.textBaseline = 'top';
+		ctx.fillText('DRAW HERE', padRect.x, padRect.y + padRect.s + 8);
+		ctx.fillText('NETWORK OUTPUT', outRect.x, outRect.y + outRect.s + 8);
+		ctx.fillText('(' + probe.x + ',' + probe.y + ') -> ' + value.toFixed(3), padRect.x, padRect.y + padRect.s + 24);
+		ctx.fillStyle = '#ddd'; ctx.font = '13' + MONO;
+		ctx.fillText('DESCENT', 18, 16);
+		ctx.fillStyle = '#6f6'; ctx.font = '11' + MONO;
+		var params = 0; for (l = 0; l < L; l++) params += W[l].length + B[l].length;
+		ctx.fillText('STEP ' + step + '   LOSS ' + loss.toFixed(4) + '   ' + params + ' PARAMETERS', 18, 36);
+
+		// Live values of some weights, under the network.
+		var cols = Math.max(4, Math.floor((net.x1 - net.x0) / 62)), rows = width > height ? 2 : 1;
+		ctx.font = '10' + MONO;
+		for (i = 0; i < cols * rows; i++) {
+			var wv = W[1][(i * 37) % W[1].length];
+			ctx.fillStyle = wv > 0 ? 'rgba(255,90,90,.8)' : 'rgba(60,255,130,.8)';
+			ctx.fillText((wv >= 0 ? '+' : '') + wv.toFixed(4), net.x0 + (i % cols) * 62, net.y1 + 16 + (i / cols | 0) * 13);
+		}
+
+		// Loss curve, top right.
+		if (history.length > 1 && width > height) {
+			var cw = Math.min(220, width * 0.3), ch = 28, cx = width - 18 - cw, cy = 14;
+			ctx.strokeStyle = 'rgba(100,255,100,.8)'; ctx.beginPath();
+			for (i = 0; i < history.length; i++) {
+				var hx = cx + cw * i / (history.length - 1), hy = cy + ch * (1 - Math.min(1, history[i] / 0.7));
+				if (i) ctx.lineTo(hx, hy); else ctx.moveTo(hx, hy);
+			}
+			ctx.stroke();
+		}
+	}
+
+	function tick() {
+		for (var s = 0; s < STEPS_PER_FRAME; s++) train(target);
+		if (frame % 10 == 0) { history.push(loss); if (history.length > 240) history.shift(); }
+
+		// Output square: a few rows per frame, top to bottom, again and again.
+		for (var r = 0; r < 6; r++) {
+			for (var x = 0; x < N; x++) {
+				var p = forward(x / (N - 1) * 2 - 1, scan / (N - 1) * 2 - 1) * 255, o = (scan * N + x) * 4;
+				outImage.data[o] = outImage.data[o + 1] = outImage.data[o + 2] = p; outImage.data[o + 3] = 255;
+			}
+			scan = (scan + 1) % N;
+		}
+		outCtx.putImageData(outImage, 0, 0);
+
+		draw();
+		frame++;
+		requestAnimationFrame(tick);
+	}
+
+	// ---- Drawing with mouse, pen or finger.
+	var last = null;
+	function toPad(event) {
+		return [(event.clientX - padRect.x) / padRect.s * N, (event.clientY - padRect.y) / padRect.s * N];
+	}
+	canvas.addEventListener('pointerdown', function(event) {
+		var p = toPad(event);
+		if (p[0] < 0 || p[1] < 0 || p[0] > N || p[1] > N) return;
+		last = p; stroke(p[0], p[1], p[0], p[1]);
+		canvas.setPointerCapture(event.pointerId);
+	});
+	canvas.addEventListener('pointermove', function(event) {
+		if (!last) return;
+		var p = toPad(event);
+		stroke(last[0], last[1], p[0], p[1]); last = p;
+	});
+	canvas.addEventListener('pointerup', function() { last = null; });
+	canvas.addEventListener('pointercancel', function() { last = null; });
+
+	document.getElementById('clear').addEventListener('click', clearPad);
+	document.getElementById('reset').addEventListener('click', reset);
+	window.addEventListener('resize', layout);
+
+	reset(); layout(); tick();
+
+})();
+</script>
+</body>
+</html>
