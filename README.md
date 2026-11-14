@@ -15,13 +15,13 @@ python -m http.server 8000
 
 | What | File |
 |---|---|
-| Home, Research, Projects, Interests, Blog, CV | `index.html`, `research/`, `projects/`, `interests/`, `notes/`, `cv/` (each an `index.html`) |
+| Home, Research, Projects, Interests, Blog | `index.html`, `research/`, `projects/`, `interests/`, `notes/` (each an `index.html`) |
 | Menu, header, footer, internship expiry | `assets/js/site.js` |
 | List of notes | `assets/js/posts.js` |
 | Site-specific styles (on top of `main.css`) | `assets/css/custom.css` |
 | Comments | `assets/js/comments.js`, `comments-worker/` (see its README) |
 
-Projects and preprints appear on several pages (Home, Projects, Research, CV): when one changes, update each.
+Projects and preprints appear on several pages (Home, Projects, Research): when one changes, update each.
 
 ## Common edits
 
@@ -31,9 +31,7 @@ Projects and preprints appear on several pages (Home, Projects, Research, CV): w
 - **Withdraw a note**: delete its folder and its lines in `posts.js` and `sitemap.xml`.
 - **Internship sentence**: the paragraph with `data-expires="2027-04-01"` in `index.html` disappears by itself
   from that date. Change the text and the date there.
-- **Add an email**: add a link to the two `profile-links` paragraphs of `index.html` and to Links in
-  `cv/index.html`.
-- **Add a CV PDF**: put it at `cv/hao-xiao-cv.pdf` and add a "Download CV (PDF)" link in `cv/index.html`.
+- **Add an email**: add a link to the two `profile-links` paragraphs of `index.html`.
 - **Art media**: only files cleared for publication, with a title, role, description and alt text.
 
 ## Public boundary

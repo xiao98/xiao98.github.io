@@ -13,8 +13,7 @@
 		['research/', 'Research'],
 		['projects/', 'Projects'],
 		['interests/', 'Interests'],
-		['notes/', 'Blog'],
-		['cv/', 'CV']
+		['notes/', 'Blog']
 	];
 
 	// Site root, derived from this script's own URL so that pages in subfolders work.
@@ -62,7 +61,6 @@
 			'<footer class="site-footer"><div class="site-footer-inner">' +
 				'&copy; ' + new Date().getFullYear() + ' Hao Xiao' +
 				' &middot; <a href="https://github.com/xiao98">GitHub</a>' +
-				' &middot; <a href="' + root + 'cv/">CV</a>' +
 				' &middot; Design based on <a href="https://html5up.net">HTML5 UP</a>' +
 			'</div></footer>');
 
