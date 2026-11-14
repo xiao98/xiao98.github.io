@@ -8,6 +8,7 @@
 (function() {
 
 	var POSTS = [
+		['2026/11/14', 'agent-memory-is-files', "An agent's memory is the files it writes"],
 	];
 
 	var list = document.getElementById('posts');

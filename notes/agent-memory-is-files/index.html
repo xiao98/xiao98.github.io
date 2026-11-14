@@ -1,0 +1,137 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html lang="en">
+	<head>
+		<title>An agent's memory is the files it writes — Hao Xiao</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="An ablation on Sequential Gaia2: carrying the agent's own files saves most of the app calls, carrying the conversation saves none, and a wrong cached file keeps producing wrong answers." />
+		<link rel="canonical" href="https://xiao98.github.io/notes/agent-memory-is-files/" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Hao Xiao" />
+		<meta property="og:title" content="An agent's memory is the files it writes — Hao Xiao" />
+		<meta property="og:description" content="An ablation on Sequential Gaia2: carrying the agent's own files saves most of the app calls, carrying the conversation saves none, and a wrong cached file keeps producing wrong answers." />
+		<meta property="og:url" content="https://xiao98.github.io/notes/agent-memory-is-files/" />
+		<meta name="twitter:card" content="summary" />
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<link rel="stylesheet" href="/assets/css/custom.css" />
+		<noscript><link rel="stylesheet" href="/assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<h1>An agent's memory is the files it writes</h1>
+
+							<p>Published on 14 November 2026.</p>
+
+							<p>The fourth task in one chain asked about the user's Messages conversations. The agent read them from the Chats app instead, a different messaging app in the same environment. It saved what it found to two files in its home directory, <code>convs.json</code> and <code>names.json</code>, and answered wrong. Four tasks later, another question about Messages conversations. The agent made no app call at all: it opened <code>convs.json</code> and answered wrong again. Four tasks after that, the same thing happened a third time.</p>
+							
+							<p>Two copies of the same agent, one starting each task with no memory and one carrying only the conversation, queried Messages each time and got all three right.</p>
+							
+							<p>The bug itself is small. It shows something about how this kind of agent remembers: its memory is the files it writes to disk, and the conversation adds little. This note is about a small experiment that separates the two.</p>
+							
+							<h2>Sequential Gaia2</h2>
+							
+							<p><a href="https://github.com/facebookresearch/meta-agents-research-environments">Gaia2</a> is Meta's benchmark for agents that act in a simulated phone: contacts, email, calendar, messaging apps, cab rides, apartment listings. Each scenario is a user request, and a judge checks the agent's actions and answer against an oracle. Normally each scenario starts from scratch.</p>
+							
+							<p><a href="https://github.com/facebookresearch/meta-agents-research-environments/pull/110">Sequential Gaia2</a>, added in September, chains the scenarios of one universe (one simulated user) together. The agent does 11 to 20 tasks in a row, and each task starts with what the previous one left: the agent's home directory, its conversation session, and the state of the apps. That is closer to a personal assistant that works for the same person every day. The agent here is <a href="https://github.com/openclaw/openclaw">OpenClaw</a>, the harness Meta uses for its own Gaia2 numbers. It has a shell, can write files, and compacts its conversation when the context fills up.</p>
+							
+							<p>"Carries memory" covers two different things: the conversation, and the files the agent chose to write. I wanted to know which one does the work.</p>
+							
+							<h2>The experiment</h2>
+							
+							<table>
+								<thead><tr><th></th><th>What the next task starts with</th></tr></thead>
+								<tbody>
+									<tr><td><strong>A</strong> full carry</td><td>conversation + files the agent wrote (the default)</td></tr>
+									<tr><td><strong>B</strong> conversation only</td><td>conversation; files the agent wrote are deleted</td></tr>
+									<tr><td><strong>C</strong> no carry</td><td>nothing: each task runs on its own (standard Gaia2)</td></tr>
+								</tbody>
+							</table>
+							
+							<p>B needed a 17-line switch in the runner: after each task, keep OpenClaw's own state and persona files, and delete everything else the agent wrote to its home. I ran the three conditions on all 10 chains of the search split, 160 tasks each, with <code>deepseek-flash</code> as the agent's model. Search tasks only read data, so the right answer never depends on what an earlier task did.</p>
+							
+							<h2>Results</h2>
+							
+							<table>
+								<thead><tr><th></th><th>Passed</th><th>App calls per task, second half of chain (median)</th><th>Input tokens per task</th></tr></thead>
+								<tbody>
+									<tr><td>A full carry</td><td>149/160</td><td>5</td><td>450k</td></tr>
+									<tr><td>B conversation only</td><td>153/160</td><td>25</td><td>475k</td></tr>
+									<tr><td>C no carry</td><td>149/160</td><td>19</td><td>372k</td></tr>
+								</tbody>
+							</table>
+							
+							<p><strong>Memory does not make the agent more accurate.</strong> The three conditions pass about the same number of tasks. On one chain run three times per condition, the pass counts move by one between runs, as much as between conditions.</p>
+							
+							<p><strong>It makes the agent do less work, and all of that comes from the files.</strong> In the second half of a chain, with files carried, the agent needs a median of 5 app calls per task, against 19 when it starts fresh. With only the conversation carried it needs 25, no better than starting fresh.</p>
+							
+							<p><strong>The conversation costs more than it gives.</strong> B reads 28% more input tokens per task than C and saves no calls. A long conversation is expensive to carry, and after compaction it holds little the agent can use.</p>
+							
+							<h2>What the agent's memory looks like</h2>
+							
+							<p>Reading the traces explains the numbers. Early in a chain, the agent often writes a short Python script that pages through a whole app and dumps it to a JSON file: <code>contacts.json</code>, <code>inbox.json</code>, <code>events.json</code>, <code>rides.json</code>. Later tasks answer by running Python over those files instead of calling the apps. When the conversation gets compacted, the summary does not keep the data, only where it is. In one run the summary said, in effect, "Dumped all 125 contacts to <code>/home/agent/contacts_raw.txt</code>".</p>
+							
+							<p>So the memory that matters is a small file-system cache plus a pointer to it in the conversation summary. Take away the files and the pointer leads nowhere. The agent has to query the apps again, while still paying for the long conversation.</p>
+							
+							<p>Nobody told the agent to build this cache. It decides on its own, and the decision varies:</p>
+							
+							<ul>
+								<li>On one chain it dumped emails, calendar and chats, and needed a median of 2 app calls per task in the second half.</li>
+								<li>On another it saved only contacts, apartment listings and crime statistics, and needed 80, more than both other conditions.</li>
+							</ul>
+							
+							<p>On 8 chains of 10, full carry needs fewer calls than starting fresh. How much less depends on what the agent happened to save.</p>
+							
+							<h2>When the cache is wrong</h2>
+							
+							<p>Back to the opening example. In that chain the cache was wrong from the moment it was written: it held Chats data under a generic name. Nothing in <code>convs.json</code> says which app it came from, which query produced it, or when. A later task asking about Messages finds a file called <code>convs.json</code>, and nothing tells the agent not to trust it. One early mistake turned into three wrong answers. The agents without the cache made it zero times.</p>
+							
+							<p>This is one chain and three tasks, so I count it as a case and not a rate. It happened on the read-only split, where the data never changes. On tasks that write to the apps, a cache that was correct when written can also go stale. Sequential Gaia2 orders those chains on purpose so that earlier writes do not break later oracles, so that case is not measured yet. It is the next thing I want to test.</p>
+							
+							<p>For anyone building agents that keep files across sessions: the agent's own notes are a cache. A cache needs a record of where each entry came from, a way to be invalidated, and some check against the source. Here the agent kept none of these.</p>
+							
+							<h2>Limits</h2>
+							
+							<ul>
+								<li>One model, one harness, the search split only.</li>
+								<li>One run per condition on 9 of the 10 chains. Differences of a few passed tasks are within noise.</li>
+								<li>The judge is the same model as the agent.</li>
+							</ul>
+							
+							<h2>Bugs found along the way</h2>
+							
+							<p>The runs also turned up two ways the evaluation can misreport a result. I opened these on the Gaia2 repository:</p>
+							
+							<ul>
+								<li>When the judge's own LLM call fails, the scenario is counted as a FAIL. Replaying 147 passing trajectories with a broken judge, 41 (28%) flip to FAIL. <a href="https://github.com/facebookresearch/meta-agents-research-environments/pull/130">PR #130</a> reports them as errors instead. <a href="https://github.com/facebookresearch/meta-agents-research-environments/pull/129">PR #129</a> makes the judge temperature configurable.</li>
+								<li>When the agent's model provider fails (billing, timeout, unknown model), the error text is sent to the user as the answer and graded as a wrong answer (<a href="https://github.com/facebookresearch/meta-agents-research-environments/issues/131">issue #131</a>).</li>
+							</ul>
+							
+							<p>Configs, the runner patch, analysis scripts and per-task results are on <a href="https://github.com/xiao98/sequential-gaia2-memory-ablation">GitHub</a>.</p>
+
+							<div id="comments"></div>
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="/assets/js/site.js"></script>
+			<script src="/assets/js/comments.js"></script>
+			<script src="/assets/js/jquery.min.js"></script>
+			<script src="/assets/js/browser.min.js"></script>
+			<script src="/assets/js/breakpoints.min.js"></script>
+			<script src="/assets/js/util.js"></script>
+			<script src="/assets/js/main.js"></script>
+
+	</body>
+</html>
