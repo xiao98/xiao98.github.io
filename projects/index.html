@@ -33,57 +33,35 @@
 							<section>
 								<p>Selected open-source work in autonomous agents, scientific computing, and tools for persistent computational workflows.</p>
 
-								<div class="entry">
-									<div class="entry-body">
 								<h2 id="sequential-gaia2-memory">Sequential Gaia2 memory ablation</h2>
 								<p class="subtitle">What carried memory does for a personal-assistant agent</p>
 								<p>An ablation on Meta's Sequential Gaia2 benchmark, where an agent completes a chain of tasks for the same simulated user and carries its memory from one task to the next. I split that memory into the conversation and the files the agent writes, and ran full carry, conversation only and no carry with the OpenClaw agent on all 10 search chains (480 task runs). Memory does not change accuracy, but it cuts app calls in the second half of a chain from 19 to 5 per task, and all of that saving comes from the files: carrying only the conversation saves nothing and costs 28% more input tokens. The traces also show the risk: the agent's file cache records no source, so one early mistake was reused as two further wrong answers. Along the way I opened two evaluation fixes upstream (judge failures counted as task failures, configurable judge temperature).</p>
 								<p class="topics">Topics: Agent memory · Agent evaluation</p>
 								<p class="entry-links"><a href="https://github.com/xiao98/sequential-gaia2-memory-ablation" aria-label="Sequential Gaia2 memory ablation on GitHub">GitHub</a><a href="/notes/agent-memory-is-files/" aria-label="Write-up of the Sequential Gaia2 memory ablation">Write-up</a></p>
-									</div>
-								</div>
 
-								<div class="entry">
-									<img class="thumb" src="/images/thumbs/opengoal.jpg" width="160" height="160" loading="lazy" alt="OpenGOAL logo: a line drawing of a bird" />
-									<div class="entry-body">
 								<h2 id="opengoal">OpenGOAL</h2>
 								<p class="subtitle">Persistent multi-agent problem solving</p>
 								<p>OpenGOAL is a multi-agent orchestration framework for persistent work on programming and mathematical tasks. It combines specialized agents, iterative evaluation, failure recovery, and budget controls around explicit success criteria. The project reflects my interest in long-horizon autonomy and verifiable feedback.</p>
 								<p class="topics">Topics: Autonomous agents · Verification</p>
 								<p class="entry-links"><a href="https://github.com/xiao98/OpenGOAL" aria-label="OpenGOAL on GitHub">GitHub</a></p>
-									</div>
-								</div>
 
-								<div class="entry">
-									<div class="entry-body">
 								<h2 id="smokeagent">SmokeAgent</h2>
 								<p class="subtitle">Language-model agents for scientific simulation</p>
 								<p>SmokeAgent is a research prototype that translates written smoke-control requirements into structured simulation workflows using NIST's Fire Dynamics Simulator (FDS). Built on Foam-Agent, it separates language-model planning from deterministic input generation, validation, and evaluation. It explores how agents can interact with scientific tools through explicit, checkable steps.</p>
 								<p class="topics">Topics: Scientific agents · Simulation</p>
 								<p class="entry-links"><a href="https://github.com/xiao98/smoke-agent" aria-label="SmokeAgent on GitHub">GitHub</a></p>
-									</div>
-								</div>
 
-								<div class="entry">
-									<img class="thumb" src="/images/thumbs/fast-sinkhorn.jpg" width="160" height="160" loading="lazy" alt="Two point clouds in three dimensions matched by optimal transport" />
-									<div class="entry-body">
 								<h2 id="fast-sinkhorn-cuda">Fast-Sinkhorn-CUDA</h2>
 								<p class="subtitle">GPU-accelerated optimal transport</p>
 								<p>A C++/CUDA implementation of the entropically regularized Sinkhorn algorithm, using log-domain computation and warp-level GPU reductions. The project explores numerical stability, GPU memory use, and custom kernels for optimal transport computations.</p>
 								<p class="topics">Topics: Optimal transport · CUDA · Numerical methods</p>
 								<p class="entry-links"><a href="https://github.com/xiao98/Fast-Sinkhorn-CUDA" aria-label="Fast-Sinkhorn-CUDA on GitHub">GitHub</a><a href="https://arxiv.org/abs/2605.00837" aria-label="Paper for Fast-Sinkhorn-CUDA">Paper</a></p>
-									</div>
-								</div>
 
-								<div class="entry">
-									<div class="entry-body">
 								<h2 id="llm-recall">llm-recall</h2>
 								<p class="subtitle">Search and resume AI coding sessions</p>
 								<p>A Go-based command-line tool for searching and resuming local sessions across Claude Code, Codex, and Gemini CLI. It brings session history into a unified interface for recovering working context across tools.</p>
 								<p class="topics">Topics: Developer tools · Persistent workflows</p>
 								<p class="entry-links"><a href="https://github.com/xiao98/llm-recall" aria-label="llm-recall on GitHub">GitHub</a></p>
-									</div>
-								</div>
 
 							</section>
 						</div>
