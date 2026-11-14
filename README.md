@@ -39,4 +39,4 @@ Projects and preprints appear on several pages (Home, Projects, Research, CV): w
 ## Public boundary
 
 Only the repositories already linked may appear. No private repository names, paths or media; no school
-other than Université Paris-Saclay (M2 MIA) and Sorbonne Université (Master 1 studies in Computer Science).
+other than Université Paris-Saclay (M2 MIA), Sorbonne Université (Master 1 in Computer Science) and Université Paris Cité (bachelor's degree in Mathematics).
