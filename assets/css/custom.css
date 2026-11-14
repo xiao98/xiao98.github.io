@@ -454,6 +454,12 @@
 		outline-offset: 3px;
 	}
 
+/* Home: only the first paragraph sits next to the photo. */
+
+	#main .image.left ~ p ~ p {
+		clear: left;
+	}
+
 /* Home: name and identity next to the photo. */
 
 	#main .identity {
