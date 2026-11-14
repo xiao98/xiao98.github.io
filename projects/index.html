@@ -33,6 +33,12 @@
 							<section>
 								<p>Selected open-source work in autonomous agents, scientific computing, and tools for persistent computational workflows.</p>
 
+								<h2 id="sequential-gaia2-memory">Sequential Gaia2 memory ablation</h2>
+								<p class="subtitle">What carried memory does for a personal-assistant agent</p>
+								<p>An ablation on Meta's Sequential Gaia2 benchmark, where an agent completes a chain of tasks for the same simulated user and carries its memory from one task to the next. I split that memory into the conversation and the files the agent writes, and ran full carry, conversation only and no carry with the OpenClaw agent on all 10 search chains (480 task runs). Memory does not change accuracy, but it cuts app calls in the second half of a chain from 19 to 5 per task, and all of that saving comes from the files: carrying only the conversation saves nothing and costs 28% more input tokens. The traces also show the risk: the agent's file cache records no source, so one early mistake was reused as two further wrong answers. Along the way I opened two evaluation fixes upstream (judge failures counted as task failures, configurable judge temperature).</p>
+								<p class="topics">Topics: Agent memory · Agent evaluation</p>
+								<p class="entry-links"><a href="https://github.com/xiao98/sequential-gaia2-memory-ablation" aria-label="Sequential Gaia2 memory ablation on GitHub">GitHub</a><a href="/notes/agent-memory-is-files/" aria-label="Write-up of the Sequential Gaia2 memory ablation">Write-up</a></p>
+
 								<h2 id="opengoal">OpenGOAL</h2>
 								<p class="subtitle">Persistent multi-agent problem solving</p>
 								<p>OpenGOAL is a multi-agent orchestration framework for persistent work on programming and mathematical tasks. It combines specialized agents, iterative evaluation, failure recovery, and budget controls around explicit success criteria. The project reflects my interest in long-horizon autonomy and verifiable feedback.</p>
