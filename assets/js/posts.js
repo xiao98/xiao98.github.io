@@ -25,7 +25,7 @@
 	// No notes: the home page drops its "Latest notes" section, the Notes page says so.
 		if (!posts.length) {
 			if (limit) list.closest('section').remove();
-			else list.outerHTML = '<p>No notes published yet.</p>';
+			else list.outerHTML = '<p>No posts published yet.</p>';
 			return;
 		}
 

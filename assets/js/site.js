@@ -13,7 +13,7 @@
 		['research/', 'Research'],
 		['projects/', 'Projects'],
 		['interests/', 'Interests'],
-		['notes/', 'Notes'],
+		['notes/', 'Blog'],
 		['cv/', 'CV']
 	];
 
@@ -47,7 +47,7 @@
 
 			document.body.classList.add('is-post');
 			back.className = 'post-back';
-			back.innerHTML = '<a href="' + root + 'notes/">All notes</a>';
+			back.innerHTML = '<a href="' + root + 'notes/">All posts</a>';
 			inner.insertBefore(back, document.getElementById('comments'));
 		}
 

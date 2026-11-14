@@ -15,7 +15,7 @@ python -m http.server 8000
 
 | What | File |
 |---|---|
-| Home, Research, Projects, Interests, Notes, CV | `index.html`, `research/`, `projects/`, `interests/`, `notes/`, `cv/` (each an `index.html`) |
+| Home, Research, Projects, Interests, Blog, CV | `index.html`, `research/`, `projects/`, `interests/`, `notes/`, `cv/` (each an `index.html`) |
 | Menu, header, footer, internship expiry | `assets/js/site.js` |
 | List of notes | `assets/js/posts.js` |
 | Site-specific styles (on top of `main.css`) | `assets/css/custom.css` |
