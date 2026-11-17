@@ -1,0 +1,133 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html lang="en">
+	<head>
+		<title>Reproducing concept-guided exploration on one GPU — Hao Xiao</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="A small-scale reproduction of concept-guided exploration for LLM reasoning: hints help at moderate budgets, but with 16 rollouts the training reward is noisy and favours longer concept lists." />
+		<link rel="canonical" href="https://xiao98.github.io/notes/concept-guided-exploration-one-gpu/" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Hao Xiao" />
+		<meta property="og:title" content="Reproducing concept-guided exploration on one GPU — Hao Xiao" />
+		<meta property="og:description" content="A small-scale reproduction of concept-guided exploration for LLM reasoning: hints help at moderate budgets, but with 16 rollouts the training reward is noisy and favours longer concept lists." />
+		<meta property="og:url" content="https://xiao98.github.io/notes/concept-guided-exploration-one-gpu/" />
+		<meta name="twitter:card" content="summary" />
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<link rel="stylesheet" href="/assets/css/custom.css" />
+		<noscript><link rel="stylesheet" href="/assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<h1>Reproducing concept-guided exploration on one GPU</h1>
+
+							<p>Published on 17 November 2026.</p>
+
+							<p>I trained a 1.5B model for 100 steps to write better hints for a 7B model solving hard math problems. Its average reward went from 0.588 to 0.590. The one change I could see was in the form of its output: it learned to always list four hints, cleanly numbered.</p>
+
+							<p>The training code was fine. The problem was the reward. This note is about a small reproduction of a recent paper, and about what happens to its reward when you can only afford a fraction of its compute.</p>
+
+							<h2>The paper</h2>
+
+							<p><a href="https://arxiv.org/abs/2609.26704">Beyond Repeated Sampling: Learning Search Policies for LLM Reasoning</a> (Labiad, Kowalski, Schoenauer, Munos, Kempe) starts from a simple observation. If you ask a model to solve a hard problem 128 times, most attempts are near-duplicates: the only exploration comes from sampling noise. Their fix is to split the work. A small <em>concept generator</em> first lists a few high-level approaches ("model it as a Markov chain", "use a tree diagram"). A larger, frozen <em>answer generator</em> then spends its attempts across those approaches. The small model is trained with RL: its reward is how often the large model succeeds when following its concepts.</p>
+
+							<p>On their hardest DeepMath problems, with a 32B answer generator, pass@128 goes from 19.0% with repeated sampling to 28.9% with an untrained 7B concept generator, and to 39.2% once it is trained. Roughly half of the gain comes from the hints, half from training.</p>
+
+							<h2>My setup</h2>
+
+							<p>One Colab A100. Everything is smaller:</p>
+
+							<table>
+								<thead><tr><th></th><th>Paper</th><th>Here</th></tr></thead>
+								<tbody>
+									<tr><td>Concept generator</td><td>7B, trained</td><td>1.5B, trained (or the 7B itself, untrained)</td></tr>
+									<tr><td>Answer generator</td><td>32B</td><td>7B</td></tr>
+									<tr><td>Answers used to score one concept list</td><td>128</td><td>16</td></tr>
+									<tr><td>Concepts per list</td><td>up to 10</td><td>up to 4</td></tr>
+								</tbody>
+							</table>
+
+							<p>Choosing the problems took two attempts. DeepMath labels each problem with a difficulty, so I first took the hardest band. The 7B model solved 60% of them on the first try. Looking at the answers explained why: in a sample of 200 of those problems, 156 had a yes/no answer. A coin flip gets half of them right, and with 64 attempts it gets nearly all of them. I dropped binary answers and let the model pick the problems instead: from 1000 candidates, I kept those it solved at most 2 times out of 8 and drew 200 of them, then sampled fresh answers for the evaluation. Even so, this set is much less hard for my 7B model than the paper's set is for its 32B model.</p>
+
+							<h2>Hints help, at moderate budgets</h2>
+
+							<p>Without any training, I compared two ways to spend 64 attempts per problem, with the same sampling settings: plain repeated sampling, and letting the 7B model first list up to 8 concepts of its own and spreading the attempts across them.</p>
+
+							<table>
+								<thead><tr><th>Attempts <em>k</em></th><th>Repeated sampling, pass@<em>k</em></th><th>Gain with concepts, points (paired 95% CI)</th></tr></thead>
+								<tbody>
+									<tr><td>1</td><td>10.3%</td><td>+1.4 [0.2, 2.6]</td></tr>
+									<tr><td>8</td><td>40.3%</td><td>+4.9 [2.1, 7.8]</td></tr>
+									<tr><td>64</td><td>71.0%</td><td>+2.5 [−2.5, 7.5]</td></tr>
+								</tbody>
+							</table>
+
+							<p><strong>The hints help most in the middle.</strong> At 8 attempts the gain is about 5 points and clearly above noise. At 64 attempts it shrinks and is no longer distinguishable from zero, partly because on this easier set both methods already solve most problems. Listing the concepts is cheap: about 0.03M tokens, against 13M for the answers.</p>
+
+							<h2>Training did not move the reward</h2>
+
+							<p>Then I trained the 1.5B concept generator: for each problem, 6 concept lists, each scored by 16 answers from the 7B model, and a policy-gradient update that pushes up the lists that scored above their group's average.</p>
+
+							<table>
+								<thead><tr><th></th><th>Reward</th><th>Lists that parse</th><th>Concepts per list</th></tr></thead>
+								<tbody>
+									<tr><td>First 10 steps</td><td>0.588</td><td>97.7%</td><td>3.3</td></tr>
+									<tr><td>Last 10 steps</td><td>0.590</td><td>99.6%</td><td>4.0</td></tr>
+								</tbody>
+							</table>
+
+							<p>On the evaluation set, the trained generator does 6 points better than the untrained one at 64 attempts, but the confidence interval starts at zero, and the paper itself shows that more concepts help at a fixed budget. With one training run, I cannot tell better concepts apart from more of them.</p>
+
+							<h2>Why: a noisy reward, and a biased one</h2>
+
+							<p><strong>Noisy.</strong> Training only uses the <em>differences</em> between the 6 lists of a problem: which ones beat their group's average. So I scored the same 120 lists twice, with fresh answers each time, and checked how well the two sets of differences agree. The raw scores agree well (correlation 0.78), but that mostly says that some problems are harder than others. The differences, which are what training sees, agree at only 0.15 and 0.30 in two repetitions. At 16 answers per list, the two scorings often disagree on which list is better, so the training signal is mostly noise.</p>
+
+							<p><strong>Biased.</strong> The paper scores a list by its best concept: the highest success rate among its concepts (max-of-mean). The paper notes that taking a maximum over noisy estimates biases the score upward. With 16 answers, that bias is large. Suppose every concept is equally good, with a true success rate of 0.2:</p>
+
+							<table>
+								<thead><tr><th></th><th>1 concept × 16 answers</th><th>2 concepts × 8</th><th>4 concepts × 4</th></tr></thead>
+								<tbody>
+									<tr><td>Expected score, <em>p</em> = 0.2</td><td>0.200</td><td>0.277</td><td>0.408</td></tr>
+									<tr><td>Expected score, <em>p</em> = 0.5</td><td>0.500</td><td>0.598</td><td>0.749</td></tr>
+								</tbody>
+							</table>
+
+							<p>Same quality, twice the score, only because the 16 answers were split four ways and the luckiest share was kept. Listing more concepts pays even when they are no better. My generator did move toward four concepts, which fits this, although its reward did not go up, so this is consistent with the bias rather than proof that it exploited it.</p>
+
+							<p>The paper uses 128 answers per list, and the noise and the bias both shrink as that number grows. The question that interests me is the low-compute one: can a reward built from 16 or 32 answers be both reliable and fair to short concept lists? The paper lists cheaper reward estimation and bandit-style allocation of answers across concepts as future work. My next experiment compares a few reward estimators on fixed pools of answers, and measures how much each one depends on the number of concepts.</p>
+
+							<h2>Limits</h2>
+
+							<ul>
+								<li>Small models, an easier problem set, and different sampling settings than the paper. This is not a replication of its numbers.</li>
+								<li>One training run, one seed.</li>
+								<li>Answers graded by a rule-based checker (<code>math-verify</code>), not an LLM judge.</li>
+								<li>The two agreement measurements disagree with each other (0.15 and 0.30): with 20 problems, they are imprecise.</li>
+							</ul>
+
+							<div id="comments"></div>
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="/assets/js/site.js"></script>
+			<script src="/assets/js/comments.js"></script>
+			<script src="/assets/js/jquery.min.js"></script>
+			<script src="/assets/js/browser.min.js"></script>
+			<script src="/assets/js/breakpoints.min.js"></script>
+			<script src="/assets/js/util.js"></script>
+			<script src="/assets/js/main.js"></script>
+
+	</body>
+</html>

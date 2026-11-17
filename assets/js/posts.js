@@ -9,6 +9,7 @@
 
 	var POSTS = [
 		['2026/11/14', 'agent-memory-is-files', "An agent's memory is the files it writes"],
+		['2026/11/17', 'concept-guided-exploration-one-gpu', 'Reproducing concept-guided exploration on one GPU'],
 	];
 
 	var list = document.getElementById('posts');
