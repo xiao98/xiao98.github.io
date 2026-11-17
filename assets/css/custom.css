@@ -403,9 +403,15 @@
 		transform: rotate(90deg);
 	}
 
+	#main details.pub-group > summary h2,
 	#main details.pub-group > summary h3 {
 		font-size: 1.15rem;
 		margin: 0;
+	}
+
+	/* Interests: whole sections folded under their heading. */
+	#main details.fold[open] > summary {
+		margin-bottom: 0.75rem;
 	}
 
 	.pub-group-count {
