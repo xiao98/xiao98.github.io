@@ -140,56 +140,11 @@
 								<details class="pub-group fold">
 									<summary><h2 id="quantitative-experiments">Quantitative trading</h2></summary>
 									<p>I am interested in quantitative trading and cryptocurrency markets, particularly time-series analysis, out-of-sample evaluation, and the difficulty of separating useful signals from noise and overfitting.</p>
-									<p>Most of this work is pre-registered falsification: the hypothesis, the parameter grid, and the pass criteria are frozen before any backtest, and a script issues the verdict. Almost every hypothesis so far has failed, and the results are listed as they came out.</p>
+									<p>Most of my work here is testing whether a trading idea survives honest evaluation. I have replicated over a hundred published strategies on crypto perpetuals, futures, and US ETFs, searched for directional and intraday edges in BTC and ETH, tested rough-volatility forecasts, and studied cross-sectional factors on crypto and Chinese A-shares. Each study fixes its hypothesis and pass criteria before the backtest and is judged on walk-forward results with deflated Sharpe ratios and realistic costs. Almost every hypothesis has failed.</p>
 
-									<h3 id="quant-tools">Evaluation tools</h3>
-									<ul class="pubs">
-										<li>
-											<span class="pub-title">Backtest statistics</span>
-											<span class="pub-authors">A small library used by every project below: Probabilistic and Deflated Sharpe Ratio (Bailey and López de Prado), probability of backtest overfitting by combinatorially symmetric cross-validation, and position sizing that combines a significance gate, a liquidation-safe leverage cap, and fractional Kelly.</span>
-										</li>
-										<li>
-											<span class="pub-title">Quant ML Pipeline</span>
-											<span class="pub-authors">An experimental financial machine-learning pipeline built around walk-forward evaluation, data-leakage checks, transaction costs, and baseline comparisons.</span> <span class="pub-links"><a href="https://github.com/xiao98/quant-ml-pipeline" aria-label="Quant ML Pipeline on GitHub">GitHub</a></span>
-										</li>
-									</ul>
-
-									<h3 id="quant-replication">Replicating published strategies</h3>
-									<ul class="pubs">
-										<li>
-											<span class="pub-title">Strategy Harvest 100</span>
-											<span class="pub-authors">110 published strategies (WorldQuant 101 alphas, academic factors, CTA and risk-premia rules, crypto-native signals) backtested on crypto perpetuals, equity-index futures, and commodity futures. Of 298 strategy and asset-class cells, none passes the joint gate on deflated Sharpe, PSR, false discovery rate, and ruin probability.</span>
-										</li>
-										<li>
-											<span class="pub-title">US Equity Zoo</span>
-											<span class="pub-authors">The same machine for US ETF strategies, judged on alpha against buy-and-hold SPY rather than raw return. 0 of 80 cells pass; twelve-month absolute momentum on SPY, for example, has a raw Sharpe of 1.05 and an alpha Sharpe of −0.57.</span>
-										</li>
-									</ul>
-
-									<h3 id="quant-crypto">Crypto: direction and volatility</h3>
-									<ul class="pubs">
-										<li>
-											<span class="pub-title">BTC/ETH edge hunt</span>
-											<span class="pub-authors">708 pre-registered trials in seven strategy families on 1h, 4h, and 1d perpetuals, with seven walk-forward folds and a sealed 90-day lockbox. None passes; the best median one-year multiple with ruin probability under 2% is 1.40×. An intraday version reaches 1.51×.</span>
-										</li>
-										<li>
-											<span class="pub-title">Rough volatility for ETH</span>
-											<span class="pub-authors">A rough fractional stochastic volatility forecast of daily realized variance against the HAR-RV baseline over 2,364 days. ETH volatility is rough (Hurst exponent near 0.1), but the forecast does not beat HAR (QLIKE 0.422 against 0.385).</span>
-										</li>
-									</ul>
-
-									<h3 id="quant-factors">Cross-sectional factors and risk premia</h3>
-									<ul class="pubs">
-										<li>
-											<span class="pub-title">A-share small-cap factors</span>
-											<span class="pub-authors">A small-cap multi-factor method on Chinese A-shares: 5,533 stocks including 326 delisted, with limit-up and limit-down execution constraints. The combined long-short factor has a Sharpe of 1.90 with no out-of-sample decay (1.55 in sample, 2.42 out), but fails the pre-registered deflated-Sharpe gate.</span>
-										</li>
-										<li>
-											<span class="pub-title">Capacity niches and risk premia</span>
-											<span class="pub-authors">Three hypotheses on perpetuals, with slippage taken from real order-book depth over 499 point-in-time symbols: long-tail funding harvest (net Sharpe −1.26), the first 72 hours of new listings (−3.92), and multi-asset volatility-targeted trend following (0.28, not significant).</span>
-										</li>
-									</ul>
-
+									<h4>Quant ML Pipeline</h4>
+									<p>An experimental financial machine-learning pipeline focused on walk-forward evaluation, data-leakage checks, transaction costs, and baseline comparisons. The emphasis is on testing whether a signal survives realistic evaluation, rather than assuming a profitable strategy.</p>
+									<p class="entry-links"><a href="https://github.com/xiao98/quant-ml-pipeline" aria-label="Quant ML Pipeline on GitHub">GitHub</a></p>
 								</details>
 							</section>
 						</div>
