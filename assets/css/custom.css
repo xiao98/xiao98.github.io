@@ -484,6 +484,16 @@
 		margin-right: 1rem;
 	}
 
+	/* Projects: one block per project, separated by a rule. */
+	#main article.project {
+		border-top: 1px solid var(--rule);
+		padding: 1.75rem 0 0.5rem 0;
+	}
+
+	#main article.project h2 {
+		margin-top: 0;
+	}
+
 /* Print (CV): content only, black on white. */
 
 	@media print {
