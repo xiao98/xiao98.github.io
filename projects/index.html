@@ -33,6 +33,12 @@
 							<section>
 								<p>Selected open-source work in autonomous agents, scientific computing, and tools for persistent computational workflows.</p>
 
+								<h2 id="concept-guided-exploration">Concept-guided exploration under limited compute</h2>
+								<p class="subtitle">Rewards for training a small model to guide a larger one</p>
+								<p>A small-scale reproduction of <a href="https://arxiv.org/abs/2609.26704">Labiad et al. (2026)</a>, where a small concept generator, trained with RL, lists approaches that a larger frozen model then follows. On one GPU, with a 1.5B concept generator and a 7B answer generator, untrained concepts improve pass@8 by about 5 points over repeated sampling with the same decoding, but training with 16 answers per concept list left the reward flat. Re-scoring the same lists with fresh answers shows why the signal is weak: the within-group advantages that drive the update agree at only 0.15 and 0.30 across two repetitions, and the max-of-mean reward rises with the number of concepts even when they are no better (from 0.20 to 0.41 when 16 answers are split four ways). Next: reward estimators that stay reliable and fair to short concept lists at low budgets, including bandit allocation of answers across concepts.</p>
+								<p class="topics">Topics: RL for LLM reasoning · Reward estimation</p>
+								<p class="entry-links"><a href="/notes/concept-guided-exploration-one-gpu/" aria-label="Write-up of the concept-guided exploration reproduction">Write-up</a></p>
+
 								<h2 id="sequential-gaia2-memory">Sequential Gaia2 memory ablation</h2>
 								<p class="subtitle">What carried memory does for a personal-assistant agent</p>
 								<p>An ablation on Meta's Sequential Gaia2 benchmark, where an agent completes a chain of tasks for the same simulated user and carries its memory from one task to the next. I split that memory into the conversation and the files the agent writes, and ran full carry, conversation only and no carry with the OpenClaw agent on all 10 search chains (480 task runs). Memory does not change accuracy, but it cuts app calls in the second half of a chain from 19 to 5 per task, and all of that saving comes from the files: carrying only the conversation saves nothing and costs 28% more input tokens. The traces also show the risk: the agent's file cache records no source, so one early mistake was reused as two further wrong answers. Along the way I opened two evaluation fixes upstream (judge failures counted as task failures, configurable judge temperature).</p>
