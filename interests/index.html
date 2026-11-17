@@ -161,16 +161,8 @@
 											<span class="pub-authors">110 published strategies (WorldQuant 101 alphas, academic factors, CTA and risk-premia rules, crypto-native signals) backtested on crypto perpetuals, equity-index futures, and commodity futures. Of 298 strategy and asset-class cells, none passes the joint gate on deflated Sharpe, PSR, false discovery rate, and ruin probability.</span>
 										</li>
 										<li>
-											<span class="pub-title">Strategy Zoo</span>
-											<span class="pub-authors">75 published strategies on Binance perpetuals across timeframes, with leakage tests and bit-identical reruns. 0 of 229 cells pass.</span>
-										</li>
-										<li>
 											<span class="pub-title">US Equity Zoo</span>
-											<span class="pub-authors">The same machine for ETF strategies, judged on alpha against buy-and-hold SPY rather than raw return. 0 of 80 cells pass; twelve-month absolute momentum on SPY, for example, has a raw Sharpe of 1.05 and an alpha Sharpe of −0.57.</span>
-										</li>
-										<li>
-											<span class="pub-title">WorldQuant 101 on crypto</span>
-											<span class="pub-authors">Three rounds on a basket of perpetuals. One alpha stays positive out of sample at a Sharpe near 0.3, which is too weak to trade alone.</span>
+											<span class="pub-authors">The same machine for US ETF strategies, judged on alpha against buy-and-hold SPY rather than raw return. 0 of 80 cells pass; twelve-month absolute momentum on SPY, for example, has a raw Sharpe of 1.05 and an alpha Sharpe of −0.57.</span>
 										</li>
 									</ul>
 
@@ -184,25 +176,13 @@
 											<span class="pub-title">Rough volatility for ETH</span>
 											<span class="pub-authors">A rough fractional stochastic volatility forecast of daily realized variance against the HAR-RV baseline over 2,364 days. ETH volatility is rough (Hurst exponent near 0.1), but the forecast does not beat HAR (QLIKE 0.422 against 0.385).</span>
 										</li>
-										<li>
-											<span class="pub-title">Mechanised Wyckoff spring</span>
-											<span class="pub-authors">A discretionary four-step Wyckoff setup turned into fixed rules with order-flow confirmation. Pooled over a 20-coin basket, the out-of-sample Sharpe is +0.026 on 43 trades.</span>
-										</li>
-										<li>
-											<span class="pub-title">18-cell discretionary framework</span>
-											<span class="pub-authors">A position, trend, and direction table with a 2:1 target, mechanised on the top-20 perpetuals at 4h: 4,625 trades over 4.4 years, at −0.12R per trade after costs.</span>
-										</li>
 									</ul>
 
 									<h3 id="quant-factors">Cross-sectional factors and risk premia</h3>
 									<ul class="pubs">
 										<li>
-											<span class="pub-title">Meme-coin factors</span>
-											<span class="pub-authors">Seven cross-sectional factors on 61 meme-coin perpetuals with a survivorship-free universe and a three-day rebalance. 0 of 42 cells pass; the in-sample Sharpe changes sign out of sample.</span>
-										</li>
-										<li>
 											<span class="pub-title">A-share small-cap factors</span>
-											<span class="pub-authors">The same method on its home market: 5,533 stocks including 326 delisted, with limit-up and limit-down execution constraints. The combined long-short factor has a Sharpe of 1.90 with no out-of-sample decay (1.55 in sample, 2.42 out), but fails the pre-registered deflated-Sharpe gate.</span>
+											<span class="pub-authors">A small-cap multi-factor method on Chinese A-shares: 5,533 stocks including 326 delisted, with limit-up and limit-down execution constraints. The combined long-short factor has a Sharpe of 1.90 with no out-of-sample decay (1.55 in sample, 2.42 out), but fails the pre-registered deflated-Sharpe gate.</span>
 										</li>
 										<li>
 											<span class="pub-title">Capacity niches and risk premia</span>
@@ -210,29 +190,6 @@
 										</li>
 									</ul>
 
-									<h3 id="quant-forward">Forward tests and market microstructure</h3>
-									<ul class="pubs">
-										<li>
-											<span class="pub-title">Crypto Momentum Lab</span>
-											<span class="pub-authors">Two paper strategies on small-cap perpetuals, both long-only breakouts at funding-rate extremes, tested forward rather than in backtest.</span>
-										</li>
-										<li>
-											<span class="pub-title">Squeeze Forward</span>
-											<span class="pub-authors">The same idea moved to US small caps: short interest above 20% of float, at least three days to cover, and a breakout on volume. Forward paper trading only, to avoid survivorship bias.</span>
-										</li>
-										<li>
-											<span class="pub-title">Listing-ladder event study</span>
-											<span class="pub-authors">Buying on a smaller exchange five minutes after a Binance listing announcement and holding for 24 hours. Ten events against a pre-registered minimum of 25, so the verdict is insufficient data.</span>
-										</li>
-										<li>
-											<span class="pub-title">Long-tail market making</span>
-											<span class="pub-authors">A pre-registered maker experiment on long-tail Binance perpetuals, staged from shadow fills to testnet, and judged from append-only fill logs.</span>
-										</li>
-										<li>
-											<span class="pub-title">Discretionary scorecard</span>
-											<span class="pub-authors">A forward scorecard for discretionary trades: each trade is logged and committed before entry, and a script issues the verdict.</span>
-										</li>
-									</ul>
 								</details>
 							</section>
 						</div>
