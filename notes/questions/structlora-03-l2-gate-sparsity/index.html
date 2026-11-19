@@ -1,0 +1,85 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html lang="en">
+	<head>
+		<title>Why an L2 penalty on gate weights drives redundant directions to zero — Hao Xiao</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="How the variational KL bound on Gaussian gates reduces to an L2 regulariser on the gate vector m, and how first-order gradients separate useful from redundant LoRA directions." />
+		<link rel="canonical" href="https://xiao98.github.io/notes/questions/structlora-03-l2-gate-sparsity/" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Hao Xiao" />
+		<meta property="og:title" content="Why an L2 penalty on gate weights drives redundant directions to zero — Hao Xiao" />
+		<meta property="og:description" content="How the variational KL bound on Gaussian gates reduces to an L2 regulariser on the gate vector m, and how first-order gradients separate useful from redundant LoRA directions." />
+		<meta property="og:url" content="https://xiao98.github.io/notes/questions/structlora-03-l2-gate-sparsity/" />
+		<meta name="twitter:card" content="summary" />
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<link rel="stylesheet" href="/assets/css/custom.css" />
+		<noscript><link rel="stylesheet" href="/assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<h1>Why an \(L_2\) penalty on gate weights drives redundant directions to zero</h1>
+
+							<p>Published on 19 November 2026.</p>
+							<p class="series-meta">Part 3 of 10 in <a href="/notes/questions/structlora/">Questions on StructLoRA (ACL 2026)</a>.</p>
+
+							<p>In Section 3.2 of StructLoRA, the gate vector \(m \in [0, 1]^r\) is motivated through an Information Bottleneck objective, \(\mathcal{L}_{\text{IB}} = \mathcal{L}_{\text{task}} + \beta I(\Delta \tilde{W}; X) - \gamma I(\Delta \tilde{W}; Y)\). Because mutual information is intractable directly, Appendix E.2 follows the Variational Information Bottleneck bound of Alemi et al. (2017) with a Gaussian posterior \(q_\phi = \mathcal{N}(\mu, \sigma^2 I)\) and a zero-mean prior \(r = \mathcal{N}(0, \sigma^2 I)\) of the same variance. The KL divergence then collapses to a quadratic penalty:</p>
+
+							\[\mathrm{KL}(q_\phi \,\|\, r) = \frac{1}{2\sigma^2} \|\mu\|_2^2.\]
+
+							<p>Substituting this tractable surrogate yields a regularised objective over the gates:</p>
+
+							\[\mathcal{L}(m) = \mathcal{L}_{\text{task}}\big(W_0 + \alpha A \operatorname{diag}(m) B\big) + \lambda \sum_{i=1}^{r} m_i^2, \qquad \lambda &gt; 0.\]
+
+							<h2>Gradient balance per direction</h2>
+
+							<p>Differentiating with respect to a single gate scalar \(m_i\) gives</p>
+
+							\[\frac{\partial \mathcal{L}}{\partial m_i} = \underbrace{\frac{\partial \mathcal{L}_{\text{task}}}{\partial m_i}}_{\text{task benefit}} + \underbrace{2\lambda m_i}_{\text{shrinkage pressure}}.\]
+
+							<p>Two regimes immediately emerge under gradient descent \(m_i \leftarrow m_i - \eta \frac{\partial \mathcal{L}}{\partial m_i}\):</p>
+
+							<ul>
+								<li><strong>Redundant or noisy direction.</strong> Changing \(m_i\) barely improves the supervised loss, so \(\frac{\partial \mathcal{L}_{\text{task}}}{\partial m_i} \approx 0\). For any \(m_i &gt; 0\), the shrinkage term \(+2\lambda m_i\) dominates and multiplies \(m_i\) by \((1 - 2\eta\lambda)\) at every step, pulling the gate exponentially toward \(0\).</li>
+								<li><strong>Task-relevant direction.</strong> Increasing \(m_i\) produces a strong negative task gradient (\(\frac{\partial \mathcal{L}_{\text{task}}}{\partial m_i} \ll 0\)) that outweighs \(2\lambda m_i\), stabilising \(m_i\) at a strictly positive equilibrium where \(-\frac{\partial \mathcal{L}_{\text{task}}}{\partial m_i} = 2\lambda m_i\).</li>
+							</ul>
+
+							<p>Notice one subtlety between \(L_2\) and \(L_1\) regularisation: strictly speaking, \(L_2\) shrinks uninformative gates smoothly toward zero without producing exact zeros in finite steps (unlike \(L_1\) soft-thresholding, as used in SoRA), which is why StructLoRA also mentions Bernoulli priors with Gumbel-Softmax relaxation when hard \(\{0, 1\}\) selection is required.</p>
+
+							<h2>Takeaway</h2>
+
+							<p>The Gaussian variational KL bound reduces to a simple quadratic cost \(\lambda \sum_i m_i^2\). Directions whose task gradient cannot offset the shrinkage term \(2\lambda m_i\) decay to zero, concentrating capacity on the directions that move the supervised loss.</p>
+
+							<nav class="series-nav" aria-label="Series navigation">
+								<a href="/notes/questions/structlora-02-norm-vs-gating/">&larr; Previous: Norm vs. learned gating</a>
+								<a href="/notes/questions/structlora/">Series index</a>
+								<a href="/notes/questions/structlora-04-static-gates-and-ib/">Next: Static gates and IB &rarr;</a>
+							</nav>
+
+							<div id="comments"></div>
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="/assets/js/site.js"></script>
+			<script src="/assets/js/comments.js"></script>
+			<script src="/assets/js/jquery.min.js"></script>
+			<script src="/assets/js/browser.min.js"></script>
+			<script src="/assets/js/breakpoints.min.js"></script>
+			<script src="/assets/js/util.js"></script>
+			<script src="/assets/js/main.js"></script>
+
+	</body>
+</html>

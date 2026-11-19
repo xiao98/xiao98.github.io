@@ -1,0 +1,104 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html lang="en">
+	<head>
+		<title>Auditing StructLoRA: the 16.8M-dimensional GNN cost and cross-table inconsistencies — Hao Xiao</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="A reviewer-level audit of StructLoRA (ACL 2026): checking the O(sum d_l^2) projection complexity against the <0.05% parameter claim, causality vs. correlation, and cross-table discrepancies." />
+		<link rel="canonical" href="https://xiao98.github.io/notes/questions/structlora-10-complexity-and-reporting-audit/" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Hao Xiao" />
+		<meta property="og:title" content="Auditing StructLoRA: the 16.8M-dimensional GNN cost and cross-table inconsistencies — Hao Xiao" />
+		<meta property="og:description" content="A reviewer-level audit of StructLoRA (ACL 2026): checking the O(sum d_l^2) projection complexity against the <0.05% parameter claim, causality vs. correlation, and cross-table discrepancies." />
+		<meta property="og:url" content="https://xiao98.github.io/notes/questions/structlora-10-complexity-and-reporting-audit/" />
+		<meta name="twitter:card" content="summary" />
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<link rel="stylesheet" href="/assets/css/custom.css" />
+		<noscript><link rel="stylesheet" href="/assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<h1>Auditing StructLoRA: the 16.8M-dimensional GNN cost and cross-table inconsistencies</h1>
+
+							<p>Published on 19 November 2026.</p>
+							<p class="series-meta">Part 10 of 10 in <a href="/notes/questions/structlora/">Questions on StructLoRA (ACL 2026)</a>.</p>
+
+							<p>Taken at face value, StructLoRA reports consistent gains over vanilla LoRA (\(1.4\) to \(3.6\) accuracy points across language and vision, and about \(6\) CIDEr points on COCO) for \(1.06\times\) epoch time, \(+0.7\text{ GB}\) peak GPU memory, and zero inference overhead. A closer reading of the complexity analysis and tables, however, uncovers five concrete gaps that matter for reproducibility and interpretation.</p>
+
+							<h2>1. Parameter-count mismatch in the GNN coordinator</h2>
+
+							<p>Section 3.3 defines each node’s initial feature as the flattened update \(h_\ell^{(0)} = \operatorname{vec}(\Delta \tilde{W}_\ell) \in \mathbb{R}^{d_\ell}\), transforms it via learned GNN weights \(\Theta^{(t)}\), and maps it back to parameter space via \(\Delta \tilde{W}_\ell^{\text{final}} = \operatorname{reshape}(W_o h_\ell^{(T)})\). Appendix E.7 explicitly states the cost of the shared projection \(W_o\) as \(O\!\left(\sum_\ell d_\ell^2\right)\).</p>
+
+							<p>Check the arithmetic on LLaMA-7B. A single \(4096 \times 4096\) attention projection has \(d_\ell = 16.78 \times 10^6\), so</p>
+
+							\[d_\ell^2 \approx 2.8 \times 10^{14}.\]
+
+							<p>Yet Appendix I claims that the IB filter and GNN coordinator together add <em>less than \(0.05\%\) additional parameters</em> (roughly \(3.5\text{M}\) parameters on a 7B model), and Table 7 reports only \(+0.7\text{ GB}\) peak memory. A literal dense map on \(d_\ell\)-dimensional vectors cannot fit inside either bound; the practical implementation must apply aggressive compression or operate directly in the factor space of \((A_\ell, B_\ell)\), but that design is never described. Together with unreported objective weights (\(\beta, \gamma, \lambda_{\text{IB}}\)), an unreported cosine edge threshold, and no released code, the method cannot currently be reproduced from the paper alone.</p>
+
+							<h2>2. Correlation vs. causation in inter-layer coherence</h2>
+
+							<p>Table 9 shows that static cosine regularisation, static Laplacian regularisation, and the GNN yield monotonically higher adjacent-layer cosine similarity (\(0.42 \to 0.45 \to 0.52\) on BoolQ) alongside higher accuracy (\(79.4 \to 80.1 \to 81.3\)). This demonstrates correlation, not causation: nothing establishes that forcing neighbouring layers to move more similarly causes better generalisation, and different Transformer depths frequently require distinct functional updates.</p>
+
+							<h2>3. Cross-table numerical inconsistency</h2>
+
+							<p>Under the exact same configuration (LLaMA-7B, BoolQ, \(r = 8\)), StructLoRA’s score changes across tables while vanilla LoRA remains constant:</p>
+
+							<table>
+								<thead><tr><th>Location in paper</th><th>Setting</th><th>LoRA</th><th>StructLoRA</th></tr></thead>
+								<tbody>
+									<tr><td>Table 1 (main comparison)</td><td>LLaMA-7B, BoolQ, \(r = 8\)</td><td>79.1</td><td><strong>82.1</strong></td></tr>
+									<tr><td>Table 3 (rank sweep), Table 4 (data sweep), Table 5 (ablation)</td><td>LLaMA-7B, BoolQ, \(r = 8\)</td><td>79.1</td><td><strong>81.3</strong></td></tr>
+									<tr><td>Table 3 (maximum rank tested)</td><td>LLaMA-7B, BoolQ, \(r = 32\)</td><td>81.0</td><td><strong>81.9</strong></td></tr>
+								</tbody>
+							</table>
+
+							<p>Even at \(r = 32\) in Table 3, StructLoRA reaches \(81.9\), still below the \(82.1\) reported for \(r = 8\) in Table 1. The text offers no explanation for the discrepancy.</p>
+
+							<h2>4. Claims that outrun the tables</h2>
+
+							<p>Table 4’s caption states that <em>“StructLoRA’s advantage over LoRA grows as the amount of training data decreases.”</em> On COCO Captioning in that same table, however, the gain over LoRA is \(+3.5\) CIDEr at \(10\%\) data, \(+4.1\) at \(25\%\), \(+3.9\) at \(50\%\), and peaks at <strong>\(+6.2\) at \(100\%\) data</strong>. Similarly, in Table 3’s rank sweep, COCO shows its smallest gain at \(r = 2\) (\(+3.1\)) and its largest at \(r = 8\) (\(+6.2\)). The scarce-resource trend holds on BoolQ, not uniformly across modalities.</p>
+
+							<h2>5. Selective reporting and missing variance</h2>
+
+							<ul>
+								<li><strong>Announced but omitted benchmarks.</strong> Section 4.1 lists eight commonsense reasoning benchmarks (BoolQ, PIQA, HellaSwag, WinoGrande, ARC-e, ARC-c, OBQA, CSQA), yet only BoolQ and PIQA appear anywhere in the paper. GQA, Oxford-IIIT Pet, and perplexity are announced in Appendix A and never reported.</li>
+								<li><strong>No variance or strong-baseline significance tests.</strong> Appendix A mentions three random seeds and paired two-sided \(t\)-tests, but no table prints standard deviations or \(p\)-values, and the \(t\)-tests compare only against vanilla LoRA—not against the closest baseline, Sensitivity-LoRA (which is also an earlier paper by overlapping authors and trails StructLoRA by \(0.5\) to \(1.6\) accuracy points).</li>
+							</ul>
+
+							<h2>Overall verdict</h2>
+
+							<p>StructLoRA frames a worthwhile shift in PEFT—optimising update quality and cross-layer structure during training, then merging everything away for free deployment. Its practical credibility, however, hinges on releasing code, specifying how the GNN operates tractably on high-dimensional weight updates, comparing against SoRA, and reporting variance across the complete benchmark suite.</p>
+
+							<nav class="series-nav" aria-label="Series navigation">
+								<a href="/notes/questions/structlora-09-filter-gnn-synergy/">&larr; Previous: Filter–GNN synergy</a>
+								<a href="/notes/questions/structlora/">Series index</a>
+								<span></span>
+							</nav>
+
+							<div id="comments"></div>
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="/assets/js/site.js"></script>
+			<script src="/assets/js/comments.js"></script>
+			<script src="/assets/js/jquery.min.js"></script>
+			<script src="/assets/js/browser.min.js"></script>
+			<script src="/assets/js/breakpoints.min.js"></script>
+			<script src="/assets/js/util.js"></script>
+			<script src="/assets/js/main.js"></script>
+
+	</body>
+</html>

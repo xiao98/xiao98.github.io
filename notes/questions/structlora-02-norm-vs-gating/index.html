@@ -1,0 +1,78 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html lang="en">
+	<head>
+		<title>Why keeping the largest-norm LoRA directions loses to learned gating — Hao Xiao</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="How the Frobenius norm of a rank-one LoRA direction factors into ||a_j||_2 ||b_j||_2, and why magnitude-based top-k pruning underperforms task-driven gating." />
+		<link rel="canonical" href="https://xiao98.github.io/notes/questions/structlora-02-norm-vs-gating/" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Hao Xiao" />
+		<meta property="og:title" content="Why keeping the largest-norm LoRA directions loses to learned gating — Hao Xiao" />
+		<meta property="og:description" content="How the Frobenius norm of a rank-one LoRA direction factors into ||a_j||_2 ||b_j||_2, and why magnitude-based top-k pruning underperforms task-driven gating." />
+		<meta property="og:url" content="https://xiao98.github.io/notes/questions/structlora-02-norm-vs-gating/" />
+		<meta name="twitter:card" content="summary" />
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<link rel="stylesheet" href="/assets/css/custom.css" />
+		<noscript><link rel="stylesheet" href="/assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<h1>Why keeping the largest-norm LoRA directions loses to learned gating</h1>
+
+							<p>Published on 19 November 2026.</p>
+							<p class="series-meta">Part 2 of 10 in <a href="/notes/questions/structlora/">Questions on StructLoRA (ACL 2026)</a>.</p>
+
+							<p>Once \(\Delta W\) is written as a sum of \(r\) rank-one matrices \(\mathbf{a}_j \mathbf{b}_j^\top\), a natural baseline for selecting directions requires no learned gate at all: score each direction by its magnitude and keep the top-\(k\) largest components.</p>
+
+							<h2>Computing the norm without forming the full matrix</h2>
+
+							<p>The Frobenius norm of a matrix is the Euclidean norm of all its entries, \(\|M\|_F = \sqrt{\sum_{p,q} M_{pq}^2}\). For a rank-one outer product \(\mathbf{a}_j \mathbf{b}_j^\top \in \mathbb{R}^{d \times k}\), the double sum factorises cleanly:</p>
+
+							\[\|\mathbf{a}_j \mathbf{b}_j^\top\|_F = \sqrt{\sum_{p=1}^{d} \sum_{q=1}^{k} a_{jp}^2 b_{jq}^2} = \sqrt{\left(\sum_{p=1}^{d} a_{jp}^2\right)\left(\sum_{q=1}^{k} b_{jq}^2\right)} = \|\mathbf{a}_j\|_2 \, \|\mathbf{b}_j\|_2.\]
+
+							<p>Thus magnitude scoring costs \(O(d + k)\) rather than \(O(dk)\). In StructLoRA (Figure 2), the authors use exactly this score, \(\|\mathbf{a}_j\|_2 \|\mathbf{b}_j\|_2\), as their Top-\(k\) Norm heuristic baseline, matched to the same keep ratio as the learned gate and compared against random masking.</p>
+
+							<h2>Why magnitude is a weak proxy for relevance</h2>
+
+							<p>Across all three modalities tested in Figure 2 (language, vision, and multimodal captioning), the empirical ranking is consistent: <strong>learned gating &gt; Top-\(k\) Norm &gt; random masking</strong>. Magnitude beats random selection by only a modest margin and trails the learned filter clearly.</p>
+
+							<p>The mismatch is straightforward. A large Frobenius norm measures how strongly a rank-one term perturbs the pretrained weights, not whether that perturbation reduces generalisation error. Under small datasets or noisy supervision, large-norm directions frequently correspond to sharp, high-variance adjustments that memorise spurious correlations or compensate for poor conditioning, whereas directions that shift task decision boundaries cleanly can have moderate norm. Because Top-\(k\) Norm ignores label sensitivity entirely, it cannot distinguish high-magnitude noise from task signal.</p>
+
+							<h2>Takeaway</h2>
+
+							<p>The Frobenius norm of a rank-one LoRA direction simplifies to \(\|\mathbf{a}_j\|_2\|\mathbf{b}_j\|_2\), making magnitude pruning cheap, but update magnitude does not track task usefulness. Selection needs gradient feedback from the task objective.</p>
+
+							<nav class="series-nav" aria-label="Series navigation">
+								<a href="/notes/questions/structlora-01-rank-one-directions/">&larr; Previous: Rank-one directions</a>
+								<a href="/notes/questions/structlora/">Series index</a>
+								<a href="/notes/questions/structlora-03-l2-gate-sparsity/">Next: L2 gate sparsity &rarr;</a>
+							</nav>
+
+							<div id="comments"></div>
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="/assets/js/site.js"></script>
+			<script src="/assets/js/comments.js"></script>
+			<script src="/assets/js/jquery.min.js"></script>
+			<script src="/assets/js/browser.min.js"></script>
+			<script src="/assets/js/breakpoints.min.js"></script>
+			<script src="/assets/js/util.js"></script>
+			<script src="/assets/js/main.js"></script>
+
+	</body>
+</html>

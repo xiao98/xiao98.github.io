@@ -1,0 +1,90 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html lang="en">
+	<head>
+		<title>Why adjacent-layer drift energy equals the Laplacian quadratic form Uᵀ(L ⊗ I)U — Hao Xiao</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="Deriving the identity between the sum of squared differences across adjacent Transformer layers and the graph Laplacian quadratic form Uᵀ(L ⊗ I)U on a three-layer path." />
+		<link rel="canonical" href="https://xiao98.github.io/notes/questions/structlora-06-laplacian-drift-energy/" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Hao Xiao" />
+		<meta property="og:title" content="Why adjacent-layer drift energy equals the Laplacian quadratic form Uᵀ(L ⊗ I)U — Hao Xiao" />
+		<meta property="og:description" content="Deriving the identity between the sum of squared differences across adjacent Transformer layers and the graph Laplacian quadratic form Uᵀ(L ⊗ I)U on a three-layer path." />
+		<meta property="og:url" content="https://xiao98.github.io/notes/questions/structlora-06-laplacian-drift-energy/" />
+		<meta name="twitter:card" content="summary" />
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<link rel="stylesheet" href="/assets/css/custom.css" />
+		<noscript><link rel="stylesheet" href="/assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<h1>Why adjacent-layer drift energy equals the Laplacian quadratic form \(U^\top (L \otimes I) U\)</h1>
+
+							<p>Published on 19 November 2026.</p>
+							<p class="series-meta">Part 6 of 10 in <a href="/notes/questions/structlora/">Questions on StructLoRA (ACL 2026)</a>.</p>
+
+							<p>In Section 3.4 of StructLoRA, each layer’s flattened update is denoted \(u_\ell = \operatorname{vec}(\Delta \tilde{W}_\ell) \in \mathbb{R}^{d_\ell}\) and stacked across depth into \(U = [u_1; \dots; u_L]\). The paper defines the <em>inter-layer drift energy</em> as</p>
+
+							\[\mathcal{E}(U) = \sum_{\ell=1}^{L-1} \|u_{\ell+1} - u_\ell\|_2^2 = U^\top (L \otimes I) U,\]
+
+							<p>where \(L \in \mathbb{R}^{L \times L}\) is the graph Laplacian over network depth and \(\otimes\) is the Kronecker product. The left-hand side is transparent—the sum of squared Euclidean distances between consecutive layers’ updates—whereas the right-hand side looks abstract until written out on a small example.</p>
+
+							<h2>Explicit expansion for \(L = 3\) layers</h2>
+
+							<p>First take \(L = 3\) layers with a scalar update per layer (\(d_\ell = 1\), so \(L \otimes I\) reduces to \(L\) itself) and \(U = [u_1, u_2, u_3]^\top\). Expanding the left-hand side directly gives</p>
+
+							\[\mathcal{E}(U) = (u_2 - u_1)^2 + (u_3 - u_2)^2 = u_1^2 + 2u_2^2 + u_3^2 - 2u_1 u_2 - 2u_2 u_3.\]
+
+							<p>On the depth path graph \(1 - 2 - 3\), node \(1\) and node \(3\) each have degree \(1\), and node \(2\) has degree \(2\). The combinatorial graph Laplacian \(L = D - A\) (degrees on the diagonal, \(-1\) on edges) is</p>
+
+							\[L = \begin{bmatrix} 1 &amp; -1 &amp; 0 \\ -1 &amp; 2 &amp; -1 \\ 0 &amp; -1 &amp; 1 \end{bmatrix}.\]
+
+							<p>Multiplying out the quadratic form \(U^\top L U\) yields</p>
+
+							\[\begin{bmatrix} u_1 &amp; u_2 &amp; u_3 \end{bmatrix} \begin{bmatrix} 1 &amp; -1 &amp; 0 \\ -1 &amp; 2 &amp; -1 \\ 0 &amp; -1 &amp; 1 \end{bmatrix} \begin{bmatrix} u_1 \\ u_2 \\ u_3 \end{bmatrix} = u_1(u_1 - u_2) + u_2(-u_1 + 2u_2 - u_3) + u_3(-u_2 + u_3),\]
+
+							<p>which simplifies to the exact same polynomial \(u_1^2 + 2u_2^2 + u_3^2 - 2u_1 u_2 - 2u_2 u_3\).</p>
+
+							<h2>What the Kronecker product \(L \otimes I\) does</h2>
+
+							<p>When each layer’s update is a vector \(u_\ell \in \mathbb{R}^{d_\ell}\) rather than a scalar, \(\|u_{\ell+1} - u_\ell\|_2^2\) simply sums the scalar squared difference independently over every coordinate \(p = 1, \dots, d_\ell\). Replacing each scalar entry \(L_{ij}\) by the diagonal block \(L_{ij} I_{d_\ell}\)—which is the definition of \(L \otimes I\)—applies the exact same depth Laplacian independently to every parameter coordinate and sums the results.</p>
+
+							<p>Because \(L\) is positive semidefinite, \(\mathcal{E}(U) \ge 0\) always holds, with \(\mathcal{E}(U) = 0\) if and only if \(u_1 = \dots = u_L\). When all \(u_\ell\) have unit norm, \(\|u_{\ell+1} - u_\ell\|_2^2 = 2(1 - \cos \theta_\ell)\), directly linking lower drift energy to higher adjacent-layer cosine similarity.</p>
+
+							<h2>Takeaway</h2>
+
+							<p>\(U^\top (L \otimes I) U\) introduces no new operation beyond \(\sum_{\ell=1}^{L-1} \|u_{\ell+1} - u_\ell\|_2^2\); rewriting the sum as a Laplacian quadratic form simply exposes its gradient and eigenvalues cleanly for the smoothing analysis in Part 7.</p>
+
+							<nav class="series-nav" aria-label="Series navigation">
+								<a href="/notes/questions/structlora-05-layer-graph-dimensions/">&larr; Previous: Layer-graph dimensions</a>
+								<a href="/notes/questions/structlora/">Series index</a>
+								<a href="/notes/questions/structlora-07-gnn-as-laplacian-smoothing/">Next: GNN as Laplacian smoothing &rarr;</a>
+							</nav>
+
+							<div id="comments"></div>
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="/assets/js/site.js"></script>
+			<script src="/assets/js/comments.js"></script>
+			<script src="/assets/js/jquery.min.js"></script>
+			<script src="/assets/js/browser.min.js"></script>
+			<script src="/assets/js/breakpoints.min.js"></script>
+			<script src="/assets/js/util.js"></script>
+			<script src="/assets/js/main.js"></script>
+
+	</body>
+</html>

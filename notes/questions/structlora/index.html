@@ -1,0 +1,90 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html lang="en">
+	<head>
+		<title>Ten questions on StructLoRA (ACL 2026) — Hao Xiao</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="A ten-part question-driven reading series on StructLoRA (ACL 2026), covering low-rank outer products, static gating vs. Information Bottleneck, spectral graph smoothing, and empirical checks." />
+		<link rel="canonical" href="https://xiao98.github.io/notes/questions/structlora/" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Hao Xiao" />
+		<meta property="og:title" content="Ten questions on StructLoRA (ACL 2026) — Hao Xiao" />
+		<meta property="og:description" content="A ten-part question-driven reading series on StructLoRA (ACL 2026), covering low-rank outer products, static gating vs. Information Bottleneck, spectral graph smoothing, and empirical checks." />
+		<meta property="og:url" content="https://xiao98.github.io/notes/questions/structlora/" />
+		<meta name="twitter:card" content="summary" />
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<link rel="stylesheet" href="/assets/css/custom.css" />
+		<noscript><link rel="stylesheet" href="/assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<h1>Ten questions on StructLoRA (ACL 2026)</h1>
+
+							<p>Published on 19 November 2026.</p>
+
+							<p>Most LoRA variants (QLoRA, VeRA, AdaLoRA, DyLoRA, Sensitivity-LoRA) focus on compression or rank allocation: how many trainable parameters to place in each layer. <a href="https://xixiaouab.github.io/StructLoRA/">Not All Directions Matter: Towards Structured and Task-Aware Low-Rank Model Adaptation</a> (Xi Xiao et al., ACL 2026, pp. 2132–2154) asks two different questions: which rank-one directions inside a layer actually help the task, and whether neighbouring layers should coordinate their updates during training.</p>
+
+							<p>Rather than writing one long paper summary, I broke my reading notes into ten short, self-contained questions. Each entry isolates one mathematical derivation, architectural choice, or critical check—from outer-product matrix decomposition and Laplacian smoothing to parameter-count verification and cross-table inconsistencies.</p>
+
+							<h2>Part I · Within-layer filtering and gating</h2>
+
+							<ul class="post-list">
+								<li><span class="series-num">01</span><a href="/notes/questions/structlora-01-rank-one-directions/">Why LoRA’s AB is an equal-weight sum of r rank-one directions</a></li>
+								<li><span class="series-num">02</span><a href="/notes/questions/structlora-02-norm-vs-gating/">Why keeping the largest-norm LoRA directions loses to learned gating</a></li>
+								<li><span class="series-num">03</span><a href="/notes/questions/structlora-03-l2-gate-sparsity/">Why an L2 penalty on gate weights drives redundant directions to zero</a></li>
+								<li><span class="series-num">04</span><a href="/notes/questions/structlora-04-static-gates-and-ib/">Why input-dependent gates break zero-latency merging, and what that means for Information Bottleneck</a></li>
+							</ul>
+
+							<h2>Part II · Cross-layer graph coordination and spectral smoothing</h2>
+
+							<ul class="post-list">
+								<li><span class="series-num">05</span><a href="/notes/questions/structlora-05-layer-graph-dimensions/">How layer updates move through a GNN: tensor shapes, Transformer depth, and GNN depth</a></li>
+								<li><span class="series-num">06</span><a href="/notes/questions/structlora-06-laplacian-drift-energy/">Why adjacent-layer drift energy equals the Laplacian quadratic form Uᵀ(L ⊗ I)U</a></li>
+								<li><span class="series-num">07</span><a href="/notes/questions/structlora-07-gnn-as-laplacian-smoothing/">Why one linearised GNN step is one gradient step of Laplacian smoothing</a></li>
+								<li><span class="series-num">08</span><a href="/notes/questions/structlora-08-oversmoothing-depth/">Why a 2- or 3-layer GNN hurts performance: quantifying oversmoothing with (I − ηL)ᵀ</a></li>
+							</ul>
+
+							<h2>Part III · Synergy and critical audit</h2>
+
+							<ul class="post-list">
+								<li><span class="series-num">09</span><a href="/notes/questions/structlora-09-filter-gnn-synergy/">Why the GNN barely helps alone (+0.3) but combines super-additively with filtering (+2.2)</a></li>
+								<li><span class="series-num">10</span><a href="/notes/questions/structlora-10-complexity-and-reporting-audit/">Auditing StructLoRA: the 16.8M-dimensional GNN cost and cross-table inconsistencies</a></li>
+							</ul>
+
+							<h2>Key references</h2>
+
+							<ul>
+								<li>Xi Xiao et al. (2026). <em>Not All Directions Matter: Towards Structured and Task-Aware Low-Rank Model Adaptation</em>. ACL 2026, pp. 2132–2154.</li>
+								<li>Edward J. Hu et al. (2022). <em>LoRA: Low-Rank Adaptation of Large Language Models</em>. ICLR 2022.</li>
+								<li>Ning Ding et al. (2023). <em>Sparse Low-Rank Adaptation of Pre-Trained Language Models (SoRA)</em>. EMNLP 2023.</li>
+								<li>Alexander A. Alemi et al. (2017). <em>Deep Variational Information Bottleneck</em>. ICLR 2017.</li>
+								<li>Thomas N. Kipf and Max Welling (2017). <em>Semi-Supervised Classification with Graph Convolutional Networks</em>. ICLR 2017.</li>
+							</ul>
+
+							<div id="comments"></div>
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="/assets/js/site.js"></script>
+			<script src="/assets/js/comments.js"></script>
+			<script src="/assets/js/jquery.min.js"></script>
+			<script src="/assets/js/browser.min.js"></script>
+			<script src="/assets/js/breakpoints.min.js"></script>
+			<script src="/assets/js/util.js"></script>
+			<script src="/assets/js/main.js"></script>
+
+	</body>
+</html>

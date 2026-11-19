@@ -1,0 +1,86 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html lang="en">
+	<head>
+		<title>Why one linearised GNN step is one gradient step of Laplacian smoothing — Hao Xiao</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="Deriving how a single gradient-descent step on the Laplacian drift energy reduces directly to convex neighbour averaging, connecting StructLoRA's residual GNN to Laplacian smoothing." />
+		<link rel="canonical" href="https://xiao98.github.io/notes/questions/structlora-07-gnn-as-laplacian-smoothing/" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Hao Xiao" />
+		<meta property="og:title" content="Why one linearised GNN step is one gradient step of Laplacian smoothing — Hao Xiao" />
+		<meta property="og:description" content="Deriving how a single gradient-descent step on the Laplacian drift energy reduces directly to convex neighbour averaging, connecting StructLoRA's residual GNN to Laplacian smoothing." />
+		<meta property="og:url" content="https://xiao98.github.io/notes/questions/structlora-07-gnn-as-laplacian-smoothing/" />
+		<meta name="twitter:card" content="summary" />
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<link rel="stylesheet" href="/assets/css/custom.css" />
+		<noscript><link rel="stylesheet" href="/assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<h1>Why one linearised GNN step is one gradient step of Laplacian smoothing</h1>
+
+							<p>Published on 19 November 2026.</p>
+							<p class="series-meta">Part 7 of 10 in <a href="/notes/questions/structlora/">Questions on StructLoRA (ACL 2026)</a>.</p>
+
+							<p>A residual GCN layer updates each node by adding a transformed neighbourhood average to its previous state: \(h_\ell^{(t+1)} = h_\ell^{(t)} + \sigma\big(\sum_{j} \tilde{A}_{\ell j} h_j^{(t)} \Theta^{(t)}\big)\). In Appendix E.4, StructLoRA linearises this step—dropping the nonlinearity \(\sigma\) and replacing the weight matrix \(\Theta^{(t)}\) with a scalar step size—to obtain</p>
+
+							\[U^+ = U - \eta (L \otimes I) U.\]
+
+							<h2>Deriving neighbour averaging from gradient descent</h2>
+
+							<p>Because the drift energy \(\mathcal{E}(U) = U^\top (L \otimes I) U\) is a smooth convex quadratic, its gradient is \(\nabla \mathcal{E}(U) = 2(L \otimes I)U\), with Lipschitz constant \(L_g = 2\lambda_{\max}(L)\). Therefore \(U^+ = U - \eta(L \otimes I)U\) is literally a gradient-descent step \(U - \frac{\eta}{2}\nabla \mathcal{E}(U)\). By standard smooth convex analysis (Theorem 1 in Appendix E.4), whenever \(0 &lt; \eta &lt; 2 / L_g = 1 / \lambda_{\max}(L)\), the energy strictly decreases unless \((L \otimes I)U = 0\):</p>
+
+							\[\mathcal{E}(U^+) \le \mathcal{E}(U) - \eta\big(1 - \eta \lambda_{\max}(L)\big)\|(L \otimes I)U\|_2^2.\]
+
+							<p>Writing this out on the three-layer scalar chain from <a href="/notes/questions/structlora-06-laplacian-drift-energy/">Part 6</a> makes the equivalence with graph message passing concrete. For \(\mathcal{E} = (u_2 - u_1)^2 + (u_3 - u_2)^2\), differentiating with respect to the middle layer \(u_2\) gives</p>
+
+							\[\frac{\partial \mathcal{E}}{\partial u_2} = 4u_2 - 2u_1 - 2u_3.\]
+
+							<p>The eigenvalues of the 3-node path Laplacian are \(\{0, 1, 3\}\), so \(\lambda_{\max}(L) = 3\) and Theorem 1 permits any \(0 &lt; \eta &lt; 1/3\) (i.e. gradient step \(\alpha = \eta / 2 &lt; 1/6\)). Choosing \(\eta = 0.25\) (\(\alpha = 0.125\)) yields</p>
+
+							\[u_2^+ = u_2 - 0.125\,(4u_2 - 2u_1 - 2u_3) = 0.5\,u_2 + 0.25\,u_1 + 0.25\,u_3.\]
+
+							<p>A single step down the gradient of \(\mathcal{E}\) reduces algebraically to keeping half of layer 2’s own update and blending in a quarter from each neighbour—a spectral low-pass filter known as <em>Laplacian smoothing</em>.</p>
+
+							<h2>Why learned coordination beats static penalties</h2>
+
+							<p>If smoothing along depth is all that happens, why use a GNN instead of adding \(\lambda \mathcal{E}(U)\) or a cosine penalty directly to the loss? StructLoRA tests both in Table 9 (CIFAR-100 / BoolQ): static cosine regularisation reaches \(82.3 / 79.4\), static Laplacian regularisation reaches \(83.0 / 80.1\), and the learned GNN reaches \(84.1 / 81.3\). Appendix E.5 notes the difference: a static penalty fixes a constant coupling matrix \(L\) across all layers and training steps, whereas a learned GNN induces a data- and stage-dependent effective Laplacian \(L_t\) (including semantic edges between non-adjacent layers).</p>
+
+							<h2>Takeaway</h2>
+
+							<p>Gradient descent on the adjacent-layer drift energy produces convex neighbour averaging verbatim. Viewing the residual GNN through this lens explains both why it increases adjacent-layer alignment and why stacking too many GNN layers collapses layer diversity.</p>
+
+							<nav class="series-nav" aria-label="Series navigation">
+								<a href="/notes/questions/structlora-06-laplacian-drift-energy/">&larr; Previous: Laplacian drift energy</a>
+								<a href="/notes/questions/structlora/">Series index</a>
+								<a href="/notes/questions/structlora-08-oversmoothing-depth/">Next: Oversmoothing and GNN depth &rarr;</a>
+							</nav>
+
+							<div id="comments"></div>
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="/assets/js/site.js"></script>
+			<script src="/assets/js/comments.js"></script>
+			<script src="/assets/js/jquery.min.js"></script>
+			<script src="/assets/js/browser.min.js"></script>
+			<script src="/assets/js/breakpoints.min.js"></script>
+			<script src="/assets/js/util.js"></script>
+			<script src="/assets/js/main.js"></script>
+
+	</body>
+</html>

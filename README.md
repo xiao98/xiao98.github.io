@@ -28,6 +28,9 @@ Projects and preprints appear on several pages (Home, Projects, Research): when 
 - **Publish a note**: copy `notes/_template.html` to `notes/<slug>/index.html`, replace `TITLE`, `SUMMARY`,
   `SLUG`, `DATE` and the text, add a line to `POSTS` in `assets/js/posts.js`, and a `<url>` line to
   `sitemap.xml`. The Notes page, the "Latest notes" section of the home page and the comment form follow.
+- **Publish a note series**: add an entry to `SERIES` in `assets/js/posts.js` (rendered under the "Series"
+  section of `notes/index.html`) and put its pages under `notes/questions/<slug>/index.html`, with a `<url>`
+  line per page in `sitemap.xml`.
 - **Withdraw a note**: delete its folder and its lines in `posts.js` and `sitemap.xml`.
 - **Internship sentence**: the paragraph with `data-expires="2027-04-01"` in `index.html` disappears by itself
   from that date. Change the text and the date there.

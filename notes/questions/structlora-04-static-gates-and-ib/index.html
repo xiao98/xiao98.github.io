@@ -1,0 +1,94 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html lang="en">
+	<head>
+		<title>Why input-dependent gates break zero-latency merging, and what that means for Information Bottleneck — Hao Xiao</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="Comparing static vs. input-dependent gates in StructLoRA: why zero-latency merging forces a static gate vector, why that makes I(ΔW̃; X) = 0, and how the practical method relates to SoRA." />
+		<link rel="canonical" href="https://xiao98.github.io/notes/questions/structlora-04-static-gates-and-ib/" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Hao Xiao" />
+		<meta property="og:title" content="Why input-dependent gates break zero-latency merging, and what that means for Information Bottleneck — Hao Xiao" />
+		<meta property="og:description" content="Comparing static vs. input-dependent gates in StructLoRA: why zero-latency merging forces a static gate vector, why that makes I(ΔW̃; X) = 0, and how the practical method relates to SoRA." />
+		<meta property="og:url" content="https://xiao98.github.io/notes/questions/structlora-04-static-gates-and-ib/" />
+		<meta name="twitter:card" content="summary" />
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<link rel="stylesheet" href="/assets/css/custom.css" />
+		<noscript><link rel="stylesheet" href="/assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<h1>Why input-dependent gates break zero-latency merging, and what that means for Information Bottleneck</h1>
+
+							<p>Published on 19 November 2026.</p>
+							<p class="series-meta">Part 4 of 10 in <a href="/notes/questions/structlora/">Questions on StructLoRA (ACL 2026)</a>.</p>
+
+							<p>StructLoRA makes two central claims about its first module: it optimises an Information Bottleneck objective containing the mutual information \(I(\Delta \tilde{W}; X)\), and it preserves LoRA’s zero-latency inference by merging the final update into \(W_0\). Putting these two statements side by side reveals a fundamental tension.</p>
+
+							<h2>Static vs. dynamic gates across training and inference</h2>
+
+							<p>First, distinguish <em>updating during training</em> from <em>varying with the input</em>. A static gate vector \(m \in [0, 1]^r\) is updated at every gradient step during training alongside \(A\) and \(B\), but once training ends it is fixed for all inputs \(x\). By linearity of matrix multiplication:</p>
+
+							\[y = W_0 x + \alpha A \operatorname{diag}(m) B x = \underbrace{\big(W_0 + \alpha A \operatorname{diag}(m) B\big)}_{W_{\text{merged}}} x.\]
+
+							<p>Because \(W_{\text{merged}}\) does not depend on \(x\), \(A\), \(B\), and \(m\) can be folded into \(W_0\) offline and discarded. At inference time, the cost is identical to the base model.</p>
+
+							<p>Now consider what happens if the gate actually depends on each input example, \(m = m(x)\):</p>
+
+							\[y = W_0 x + \alpha A \operatorname{diag}\big(m(x)\big) B x.\]
+
+							<p>Here the effective weight matrix changes from one input \(x_1\) to another \(x_2\). No single merged matrix \(W_{\text{merged}}\) exists: both the gating network \(m(\cdot)\) and the low-rank branch must run on every forward pass at inference time, eliminating zero-latency merging.</p>
+
+							<table>
+								<thead><tr><th>Property</th><th>Static gate \(m\)</th><th>Input-dependent gate \(m(x)\)</th></tr></thead>
+								<tbody>
+									<tr><td>Updated by gradients during training</td><td>Yes</td><td>Yes</td></tr>
+									<tr><td>Varies across test inputs \(x\)</td><td>No (constant per task)</td><td>Yes</td></tr>
+									<tr><td>Mergeable into a single static \(W_0\)</td><td>Yes (zero inference latency)</td><td>No</td></tr>
+									<tr><td>Mutual information \(I(\Delta \tilde{W}; X)\)</td><td>Identically \(0\)</td><td>Non-trivial</td></tr>
+								</tbody>
+							</table>
+
+							<h2>The theoretical gap—and the missing baseline</h2>
+
+							<p>From an engineering perspective, keeping \(m\) static so it merges into \(W_0\) is the right choice. The problem lies in the theoretical framing. In probability theory, mutual information measures statistical dependence between two random variables; for any deterministic parameter \(\Delta \tilde{W}\) that does not vary with the random input \(X\), \(I(\Delta \tilde{W}; X) = 0\) identically. Appendix E.2 (Eq. 12) writes an amortised posterior \(q_\phi(z \mid X) = \mathcal{N}(\mu(X), \sigma^2 I)\) to invoke the variational bound of Alemi et al. (2017), yet the mergeable implementation drops the dependence on \(X\) and reduces the objective to a standard sparsity or \(L_2\) penalty on \(m\).</p>
+
+							<p>Once stripped of the Information Bottleneck notation, a static regularised gate between \(A\) and \(B\) closely resembles <strong>SoRA</strong> (Ding et al., EMNLP 2023), which places an \(L_1\)-regularised gate between LoRA’s two matrices to prune rank-one directions. SoRA is neither cited nor compared in StructLoRA, weakening the paper’s claim to be the first to address unequal direction importance within LoRA.</p>
+
+							<h2>Takeaway</h2>
+
+							<p>Zero-latency merging requires an input-independent gate \(m\), under which \(I(\Delta \tilde{W}; X) = 0\). StructLoRA’s practical Stage-1 mechanism is therefore a static sparsity-penalised gate—a sound engineering design, but closer to SoRA than the Information Bottleneck framing suggests.</p>
+
+							<nav class="series-nav" aria-label="Series navigation">
+								<a href="/notes/questions/structlora-03-l2-gate-sparsity/">&larr; Previous: L2 gate sparsity</a>
+								<a href="/notes/questions/structlora/">Series index</a>
+								<a href="/notes/questions/structlora-05-layer-graph-dimensions/">Next: Layer-graph dimensions &rarr;</a>
+							</nav>
+
+							<div id="comments"></div>
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="/assets/js/site.js"></script>
+			<script src="/assets/js/comments.js"></script>
+			<script src="/assets/js/jquery.min.js"></script>
+			<script src="/assets/js/browser.min.js"></script>
+			<script src="/assets/js/breakpoints.min.js"></script>
+			<script src="/assets/js/util.js"></script>
+			<script src="/assets/js/main.js"></script>
+
+	</body>
+</html>

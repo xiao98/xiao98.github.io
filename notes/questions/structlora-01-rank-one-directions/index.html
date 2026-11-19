@@ -1,0 +1,91 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html lang="en">
+	<head>
+		<title>Why LoRA’s AB is an equal-weight sum of r rank-one directions — Hao Xiao</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="Viewing LoRA's low-rank product AB as a sum of r outer products clarifies what semantic drift means and why diagonal gating between A and B selectively reweights individual directions." />
+		<link rel="canonical" href="https://xiao98.github.io/notes/questions/structlora-01-rank-one-directions/" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Hao Xiao" />
+		<meta property="og:title" content="Why LoRA’s AB is an equal-weight sum of r rank-one directions — Hao Xiao" />
+		<meta property="og:description" content="Viewing LoRA's low-rank product AB as a sum of r outer products clarifies what semantic drift means and why diagonal gating between A and B selectively reweights individual directions." />
+		<meta property="og:url" content="https://xiao98.github.io/notes/questions/structlora-01-rank-one-directions/" />
+		<meta name="twitter:card" content="summary" />
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<link rel="stylesheet" href="/assets/css/custom.css" />
+		<noscript><link rel="stylesheet" href="/assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<h1>Why LoRA’s \(AB\) is an equal-weight sum of \(r\) rank-one directions</h1>
+
+							<p>Published on 19 November 2026.</p>
+							<p class="series-meta">Part 1 of 10 in <a href="/notes/questions/structlora/">Questions on StructLoRA (ACL 2026)</a>.</p>
+
+							<p>Standard LoRA freezes a pretrained matrix \(W_0 \in \mathbb{R}^{d \times k}\) and learns an update \(\Delta W = AB\), with \(A \in \mathbb{R}^{d \times r}\), \(B \in \mathbb{R}^{r \times k}\), and \(r \ll \min(d, k)\). For a single \(4096 \times 4096\) attention projection in LLaMA-7B (\(16.8\text{M}\) weights), setting \(r = 8\) cuts the trainable parameters to \(65{,}536\) (\(0.39\%\)), and once training ends, \(\alpha AB\) is added into \(W_0\) with no inference overhead.</p>
+
+							<p>Most descriptions stop at the parameter count. Yet rewriting the product \(AB\) from an <strong>outer-product</strong> perspective exposes a structural assumption that directly motivates StructLoRA (Xiao et al., ACL 2026) as well as earlier pruning variants such as AdaLoRA and SoRA.</p>
+
+							<h2>From matrix multiplication to rank-one directions</h2>
+
+							<p>Partition \(A\) into its \(r\) columns \(\mathbf{a}_1, \dots, \mathbf{a}_r \in \mathbb{R}^{d}\) and \(B\) into its \(r\) rows \(\mathbf{b}_1^\top, \dots, \mathbf{b}_r^\top \in \mathbb{R}^{1 \times k}\). By the column–row expansion of matrix multiplication:</p>
+
+<pre><code>  A (d × r)            B (r × k)                  r independent d × k matrices
+┌───┬───┬───┐      ┌─────────────────┐
+│a_1│...│a_r│  ×   │      b_1^T      │   =   1·(a_1 b_1^T) + ... + 1·(a_r b_r^T)
+└───┴───┴───┘      │       ...       │
+                   │      b_r^T      │
+                   └─────────────────┘</code></pre>
+
+							<p>Equivalently,</p>
+
+							\[\Delta W = AB = \sum_{i=1}^{r} \mathbf{a}_i \mathbf{b}_i^\top.\]
+
+							<p>Each term \(\mathbf{a}_i \mathbf{b}_i^\top \in \mathbb{R}^{d \times k}\) is a rank-one matrix—a single update direction in weight space. In vanilla LoRA, every one of these \(r\) directions enters the sum with the same fixed coefficient \(1\). Nothing stops redundant or noise-fitting components from occupying part of a small rank budget. StructLoRA refers to this equal treatment of useful and noisy directions inside a layer as <em>semantic drift</em>.</p>
+
+							<h2>How diagonal gating acts on the expansion</h2>
+
+							<p>Inserting a learnable gate vector \(m = (m_1, \dots, m_r) \in [0, 1]^r\) as a diagonal matrix between \(A\) and \(B\) modifies the outer-product sum directly:</p>
+
+							\[\Delta \tilde{W} = A \operatorname{diag}(m) B = \sum_{i=1}^{r} m_i \, (\mathbf{a}_i \mathbf{b}_i^\top).\]
+
+							<p>Each scalar \(m_i\) scales only the \(i\)-th rank-one component. Driving \(m_i \to 0\) removes that direction cleanly without changing the interface of \(A\) and \(B\), and adds only \(r\) parameters per adapted matrix.</p>
+
+							<h2>Takeaway</h2>
+
+							<p>Viewing \(AB\) as \(\sum_{i=1}^r \mathbf{a}_i \mathbf{b}_i^\top\) makes it immediate why a single diagonal vector between \(A\) and \(B\) acts as a per-direction switch: vanilla LoRA fixes all \(r\) coefficients to \(1\), whereas gated variants learn which directions deserve to stay active.</p>
+
+							<nav class="series-nav" aria-label="Series navigation">
+								<span></span>
+								<a href="/notes/questions/structlora/">Series index</a>
+								<a href="/notes/questions/structlora-02-norm-vs-gating/">Next: Norm vs. learned gating &rarr;</a>
+							</nav>
+
+							<div id="comments"></div>
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="/assets/js/site.js"></script>
+			<script src="/assets/js/comments.js"></script>
+			<script src="/assets/js/jquery.min.js"></script>
+			<script src="/assets/js/browser.min.js"></script>
+			<script src="/assets/js/breakpoints.min.js"></script>
+			<script src="/assets/js/util.js"></script>
+			<script src="/assets/js/main.js"></script>
+
+	</body>
+</html>

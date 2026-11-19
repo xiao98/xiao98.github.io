@@ -1,0 +1,92 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html lang="en">
+	<head>
+		<title>Why a 2- or 3-layer GNN hurts performance: quantifying oversmoothing with (I − ηL)ᵀ — Hao Xiao</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="Tracing the spectral contraction of (I − ηL)ᵀ on a three-layer toy chain to show why oversmoothing begins immediately at GNN depth T = 2, matching StructLoRA's depth ablation." />
+		<link rel="canonical" href="https://xiao98.github.io/notes/questions/structlora-08-oversmoothing-depth/" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Hao Xiao" />
+		<meta property="og:title" content="Why a 2- or 3-layer GNN hurts performance: quantifying oversmoothing with (I − ηL)ᵀ — Hao Xiao" />
+		<meta property="og:description" content="Tracing the spectral contraction of (I − ηL)ᵀ on a three-layer toy chain to show why oversmoothing begins immediately at GNN depth T = 2, matching StructLoRA's depth ablation." />
+		<meta property="og:url" content="https://xiao98.github.io/notes/questions/structlora-08-oversmoothing-depth/" />
+		<meta name="twitter:card" content="summary" />
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<link rel="stylesheet" href="/assets/css/custom.css" />
+		<noscript><link rel="stylesheet" href="/assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<h1>Why a 2- or 3-layer GNN hurts performance: quantifying oversmoothing with \((I - \eta L)^T\)</h1>
+
+							<p>Published on 19 November 2026.</p>
+							<p class="series-meta">Part 8 of 10 in <a href="/notes/questions/structlora/">Questions on StructLoRA (ACL 2026)</a>.</p>
+
+							<p>In Table 6 of StructLoRA (BoolQ on LLaMA-7B), increasing the depth of the graph coordinator degrades accuracy monotonically: a 1-layer GNN achieves \(81.3\%\), a 2-layer GNN drops to \(80.4\%\), and a 3-layer GNN falls to \(79.7\%\)—nearly back to vanilla LoRA (\(79.1\%\)).</p>
+
+							<h2>Spectral contraction under repeated smoothing</h2>
+
+							<p>Iterating the linearised smoothing operator from <a href="/notes/questions/structlora-07-gnn-as-laplacian-smoothing/">Part 7</a> for \(T\) GNN layers gives</p>
+
+							\[U^{(T)} = (I - \eta L)^T U^{(0)}.\]
+
+							<p>Let \(0 = \lambda_1 &lt; \lambda_2 \le \dots \le \lambda_L\) be the eigenvalues of \(L\) on a connected graph. Under the convergence condition \(0 &lt; \eta &lt; 1 / \lambda_L\), the eigenvalues of \((I - \eta L)\) satisfy</p>
+
+							\[1 - \eta \lambda_1 = 1, \qquad 0 &lt; 1 - \eta \lambda_k &lt; 1 \quad (k \ge 2).\]
+
+							<p>Raising the operator to the \(T\)-th power preserves only the constant eigenvector \(\mathbf{1} \in \operatorname{Null}(L)\) (where all layers hold the exact same update) while contracting every non-constant mode exponentially at rate \((1 - \eta \lambda_k)^T\). That collapse toward a constant depth signal is <em>oversmoothing</em>.</p>
+
+							<h2>Numerical trace on a three-layer chain</h2>
+
+							<p>Take the 3-node chain with \(\eta = 0.25\) (\(u_1^+ = 0.75 u_1 + 0.25 u_2\), \(u_2^+ = 0.5 u_2 + 0.25 u_1 + 0.25 u_3\)) starting from a sharply misaligned state \(U^{(0)} = [10, 2, 10]^\top\), whose average across layers is \(7.333\):</p>
+
+							<table>
+								<thead><tr><th>GNN layers \(T\)</th><th>Layer updates \([u_1, u_2, u_3]\)</th><th>Drift energy \(\mathcal{E}(U^{(T)})\)</th><th>BoolQ accuracy (Table 6)</th></tr></thead>
+								<tbody>
+									<tr><td>0 (vanilla LoRA)</td><td>\([10.00,\; 2.00,\; 10.00]\)</td><td>\(128.00\)</td><td>79.1%</td></tr>
+									<tr><td><strong>1</strong></td><td><strong>\([8.00,\; 6.00,\; 8.00]\)</strong></td><td><strong>\(8.00\)</strong></td><td><strong>81.3%</strong></td></tr>
+									<tr><td>2</td><td>\([7.50,\; 7.00,\; 7.50]\)</td><td>\(0.50\)</td><td>80.4%</td></tr>
+									<tr><td>3</td><td>\([7.38,\; 7.25,\; 7.38]\)</td><td>\(0.03\)</td><td>79.7%</td></tr>
+								</tbody>
+							</table>
+
+							<p>Notice how quickly the contraction happens: oversmoothing does not wait for a deep 10-layer GNN. One step (\(T = 1\)) removes most of the jagged mismatch (\(\mathcal{E}: 128 \to 8\)) while preserving layer differentiation (\(6\) vs. \(8\)). By \(T = 2\) and \(T = 3\), the layers become nearly indistinguishable, erasing the functional specialisation between lower and upper Transformer blocks.</p>
+
+							<h2>Takeaway</h2>
+
+							<p>Because non-constant modes of \((I - \eta L)^T\) decay geometrically with \(T\), oversmoothing sets in immediately after the first message-passing step. Keeping \(T = 1\) with a residual path is therefore a structural necessity, not an arbitrary tuning choice.</p>
+
+							<nav class="series-nav" aria-label="Series navigation">
+								<a href="/notes/questions/structlora-07-gnn-as-laplacian-smoothing/">&larr; Previous: GNN as Laplacian smoothing</a>
+								<a href="/notes/questions/structlora/">Series index</a>
+								<a href="/notes/questions/structlora-09-filter-gnn-synergy/">Next: Filter–GNN synergy &rarr;</a>
+							</nav>
+
+							<div id="comments"></div>
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="/assets/js/site.js"></script>
+			<script src="/assets/js/comments.js"></script>
+			<script src="/assets/js/jquery.min.js"></script>
+			<script src="/assets/js/browser.min.js"></script>
+			<script src="/assets/js/breakpoints.min.js"></script>
+			<script src="/assets/js/util.js"></script>
+			<script src="/assets/js/main.js"></script>
+
+	</body>
+</html>

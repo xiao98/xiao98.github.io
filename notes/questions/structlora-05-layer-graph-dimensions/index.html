@@ -1,0 +1,84 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html lang="en">
+	<head>
+		<title>How layer updates move through a GNN: tensor shapes, Transformer depth, and GNN depth — Hao Xiao</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="Tracking tensor dimensions through StructLoRA's Stage-2 graph coordinator and separating the two independent notions of depth: Transformer layers L vs. GNN message-passing steps T." />
+		<link rel="canonical" href="https://xiao98.github.io/notes/questions/structlora-05-layer-graph-dimensions/" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Hao Xiao" />
+		<meta property="og:title" content="How layer updates move through a GNN: tensor shapes, Transformer depth, and GNN depth — Hao Xiao" />
+		<meta property="og:description" content="Tracking tensor dimensions through StructLoRA's Stage-2 graph coordinator and separating the two independent notions of depth: Transformer layers L vs. GNN message-passing steps T." />
+		<meta property="og:url" content="https://xiao98.github.io/notes/questions/structlora-05-layer-graph-dimensions/" />
+		<meta name="twitter:card" content="summary" />
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<link rel="stylesheet" href="/assets/css/custom.css" />
+		<noscript><link rel="stylesheet" href="/assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<h1>How layer updates move through a GNN: tensor shapes, Transformer depth, and GNN depth</h1>
+
+							<p>Published on 19 November 2026.</p>
+							<p class="series-meta">Part 5 of 10 in <a href="/notes/questions/structlora/">Questions on StructLoRA (ACL 2026)</a>.</p>
+
+							<p>Standard LoRA trains each Transformer layer’s adapter independently. In Table 13 (BERT-base on SST-2), StructLoRA reports that the cosine similarity between adjacent layers’ update gradients under vanilla LoRA sits between \(0.27\) and \(0.41\) (mean \(0.34\)), which the authors term <em>structural incoherence</em>. To couple updates across depth, Stage 2 treats the Transformer itself as a graph and passes layer updates through a shallow Graph Neural Network (GCN or GAT).</p>
+
+							<h2>Two independent notions of “layer”</h2>
+
+							<p>Reading the paper’s notation requires keeping two orthogonal depth dimensions separate:</p>
+
+							<ul>
+								<li><strong>Transformer depth \(L\)</strong> is the <em>number of nodes</em> in the graph \(\mathcal{G} = (\mathcal{V}, \mathcal{E})\)—for example, \(L = 32\) nodes for LLaMA-7B. Node \(\ell \in \{1, \dots, L\}\) represents layer \(\ell\) of the backbone.</li>
+								<li><strong>GNN depth \(T\)</strong> is a separate hyperparameter controlling how many <em>rounds of message passing</em> those \(L\) nodes perform with their neighbours during each training step (StructLoRA uses \(T = 1\) by default, and ablates \(T \in \{1, 2, 3\}\)).</li>
+							</ul>
+
+							<h2>Why updates are flattened and reshaped</h2>
+
+							<p>Each layer \(\ell\) outputs a filtered 2D update matrix \(\Delta \tilde{W}_\ell = A_\ell \operatorname{diag}(m_\ell) B_\ell \in \mathbb{R}^{d \times k}\). Standard GNN layers expect a 1D feature vector per node, so StructLoRA flattens each layer’s matrix into \(h_\ell^{(0)} = \operatorname{vec}(\Delta \tilde{W}_\ell) \in \mathbb{R}^{d_\ell}\) (with \(d_\ell = dk\)), runs \(T\) residual message-passing steps, projects through a linear map \(W_o\), and reshapes the output back into a \(d \times k\) matrix so it can be added element-wise to the frozen weight \(W_{0,\ell}\):</p>
+
+<pre><code>Filtered updates ΔW̃_ℓ     vec()        Node matrix H^(0)      T GNN steps       H^(T)        W_o + reshape()     Final updates ΔW̃_ℓ^final
+ L matrices of [d, k]   ─────────▶      [L, d·k]           ──────────────▶    [L, d·k]     ──────────────────▶    L matrices of [d, k]</code></pre>
+
+							<p>The graph edges \(\mathcal{E}\) combine two relations (hybrid graph): <em>adjacency edges</em> linking consecutive layers \((\ell, \ell \pm 1)\), and <em>semantic edges</em> linking non-adjacent layers whose batch-averaged update gradients exceed a cosine-similarity threshold. Table 6 shows that combining both edge types (\(81.3\%\) on BoolQ) outperforms adjacency-only (\(80.5\%\)) and similarity-only (\(80.2\%\)).</p>
+
+							<p>Crucially, this entire graph pipeline runs only during training. Once training converges, the final updates \(\Delta \tilde{W}_\ell^{\text{final}}\) are merged into \(W_{0,\ell}\) and the GNN is discarded. (Whether the literal \(d_\ell\)-dimensional projection \(W_o\) is computationally tractable at \(d_\ell = 16.8\text{M}\) is a separate question examined in <a href="/notes/questions/structlora-10-complexity-and-reporting-audit/">Part 10</a>.)</p>
+
+							<h2>Takeaway</h2>
+
+							<p>Transformer depth \(L\) sets the graph size (one node per layer), whereas GNN depth \(T\) sets the number of neighbour-averaging rounds. Flattening adapts 2D weight updates to the GNN’s vector interface, and reshaping restores the matrix layout required to merge into \(W_0\).</p>
+
+							<nav class="series-nav" aria-label="Series navigation">
+								<a href="/notes/questions/structlora-04-static-gates-and-ib/">&larr; Previous: Static gates and IB</a>
+								<a href="/notes/questions/structlora/">Series index</a>
+								<a href="/notes/questions/structlora-06-laplacian-drift-energy/">Next: Laplacian drift energy &rarr;</a>
+							</nav>
+
+							<div id="comments"></div>
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="/assets/js/site.js"></script>
+			<script src="/assets/js/comments.js"></script>
+			<script src="/assets/js/jquery.min.js"></script>
+			<script src="/assets/js/browser.min.js"></script>
+			<script src="/assets/js/breakpoints.min.js"></script>
+			<script src="/assets/js/util.js"></script>
+			<script src="/assets/js/main.js"></script>
+
+	</body>
+</html>

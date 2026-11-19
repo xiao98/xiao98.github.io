@@ -330,6 +330,52 @@
 		font-size: 1.1em;
 	}
 
+	#main .katex-display {
+		overflow-x: auto;
+		overflow-y: hidden;
+		padding: 0.25rem 0;
+	}
+
+/* Note series: numbered list inside a foldable group, plus prev/next links inside each post. */
+
+	#main details.pub-group > p.series-summary {
+		color: var(--muted);
+		font-size: 0.95em;
+		margin: 0.5rem 0 0.75rem 0;
+	}
+
+	#main details.pub-group > ul.post-list {
+		margin: 0.5rem 0 0.75rem 0;
+	}
+
+	.series-num {
+		color: var(--muted);
+		flex: 0 0 2.2rem;
+		font-variant-numeric: tabular-nums;
+	}
+
+	#main p.series-meta {
+		color: var(--muted);
+		font-size: 0.92em;
+		margin-top: -0.6em;
+	}
+
+	.series-nav {
+		border-top: solid 1px var(--rule);
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem 1.5rem;
+		justify-content: space-between;
+		margin-top: 2.25rem;
+		padding-top: 1rem;
+	}
+
+	.series-nav + .post-back {
+		border-top: 0;
+		margin-top: 0.75rem !important;
+		padding-top: 0;
+	}
+
 /* Publications switch (research.html): two text buttons, the active one underlined.
    main.css forces button colours with !important, hence the !important here. */
 

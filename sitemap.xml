@@ -8,4 +8,15 @@
 	<url><loc>https://xiao98.github.io/notes/</loc></url>
 	<url><loc>https://xiao98.github.io/notes/agent-memory-is-files/</loc></url>
 	<url><loc>https://xiao98.github.io/notes/concept-guided-exploration-one-gpu/</loc></url>
+	<url><loc>https://xiao98.github.io/notes/questions/structlora/</loc></url>
+	<url><loc>https://xiao98.github.io/notes/questions/structlora-01-rank-one-directions/</loc></url>
+	<url><loc>https://xiao98.github.io/notes/questions/structlora-02-norm-vs-gating/</loc></url>
+	<url><loc>https://xiao98.github.io/notes/questions/structlora-03-l2-gate-sparsity/</loc></url>
+	<url><loc>https://xiao98.github.io/notes/questions/structlora-04-static-gates-and-ib/</loc></url>
+	<url><loc>https://xiao98.github.io/notes/questions/structlora-05-layer-graph-dimensions/</loc></url>
+	<url><loc>https://xiao98.github.io/notes/questions/structlora-06-laplacian-drift-energy/</loc></url>
+	<url><loc>https://xiao98.github.io/notes/questions/structlora-07-gnn-as-laplacian-smoothing/</loc></url>
+	<url><loc>https://xiao98.github.io/notes/questions/structlora-08-oversmoothing-depth/</loc></url>
+	<url><loc>https://xiao98.github.io/notes/questions/structlora-09-filter-gnn-synergy/</loc></url>
+	<url><loc>https://xiao98.github.io/notes/questions/structlora-10-complexity-and-reporting-audit/</loc></url>
 </urlset>
