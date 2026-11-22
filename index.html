@@ -45,13 +45,13 @@
 										I am a master's student in Mathematics and Artificial Intelligence at Université Paris-Saclay. My research interests lie at the intersection of reinforcement learning, large language models, and autonomous agents. I am particularly interested in how agents can learn from interaction, reason over long horizons, and improve their problem-solving strategies through experience and verifiable feedback.
 									</p>
 									<p>
-										Before mathematics and AI, I worked as a film director and photographer. Outside research, I trade cryptocurrency markets with strategies of my own design, which have made me a great deal of money (in backtests).
+										Before mathematics and AI, I worked as a film director, photographer, and full-stack software engineer. Outside research, I trade cryptocurrency markets with strategies of my own design, which have made me a great deal of money (in backtests).
 									</p>
 									<p>
 										Alongside my studies, I participate in the Pépite PEIPS entrepreneurship support program.
 									</p>
 									<p data-expires="2027-04-01">
-										I am looking for a research internship in reinforcement learning, LLM reasoning, or autonomous agents for April–September 2027.
+										I am seeking a 6-month end-of-studies research internship (stage de fin d'études) in reinforcement learning, LLM agents, or generative modeling starting March 2027.
 									</p>
 									<p class="profile-links">
 										<a href="https://github.com/xiao98"><i class="fab fa-github" aria-hidden="true"></i>GitHub</a>
@@ -63,7 +63,7 @@
 									<ul class="pubs">
 										<li>
 											<span class="pub-title"><a href="/projects/#concept-guided-exploration">Concept-guided exploration under limited compute</a></span>
-											<span class="pub-authors">A small-scale reproduction of concept-guided exploration for LLM reasoning, showing that at low rollout budgets the RL reward is noisy and favours longer concept lists.</span> <span class="pub-links"><a href="/notes/concept-guided-exploration-one-gpu/" aria-label="Write-up of the concept-guided exploration reproduction">Write-up</a></span>
+											<span class="pub-authors">A single-GPU re-implementation of concept-guided exploration for LLM reasoning, showing that at low rollout budgets within-group advantages are noisy (0.15 and 0.30 correlation vs 0.78 raw) and max-of-mean rewards favour longer lists.</span> <span class="pub-links"><a href="/notes/concept-guided-exploration-one-gpu/" aria-label="Write-up of the concept-guided exploration reproduction">Write-up</a><a href="/notes/questions/small-budget-rewards/" aria-label="Eight-part analysis of small-budget RL rewards">Analysis</a></span>
 										</li>
 										<li>
 											<span class="pub-title"><a href="/projects/#sequential-gaia2-memory">Sequential Gaia2 memory ablation</a></span>
@@ -74,16 +74,16 @@
 											<span class="pub-authors">An experiment on Gaia2's ambiguity split showing that one rewritten instruction rule cuts premature state-changing actions from 15 to 5 and raises passes from 9 to 19 on held-out scenarios.</span> <span class="pub-links"><a href="https://github.com/xiao98/gaia2-ask-or-guess" aria-label="Code for the Gaia2 ask-or-act experiment">GitHub</a></span>
 										</li>
 										<li>
-											<span class="pub-title"><a href="/projects/#opengoal">OpenGOAL</a></span>
-											<span class="pub-authors">A framework for persistent, iterative work on programming and mathematical tasks with explicit success criteria.</span> <span class="pub-links"><a href="https://github.com/xiao98/OpenGOAL" aria-label="Code for OpenGOAL">GitHub</a></span>
+											<span class="pub-title"><a href="/projects/#presidio-fr">presidio-fr &amp; FR-PII-Bench</a></span>
+											<span class="pub-authors">On-device GDPR-compliant French PII masking for ChatGPT, Claude, and Mistral Le Chat (0.990 recall, 0.973 precision at 50 ms/doc on CPU), with an open 300-document French benchmark.</span> <span class="pub-links"><a href="https://github.com/xiao98/presidio-fr-docs" aria-label="Public docs and technical report for presidio-fr">Docs</a><a href="https://huggingface.co/datasets/JaqueBill/fr-pii-bench" aria-label="FR-PII-Bench dataset on Hugging Face">Dataset</a></span>
 										</li>
 										<li>
 											<span class="pub-title"><a href="/projects/#smokeagent">SmokeAgent</a></span>
-											<span class="pub-authors">A research prototype connecting language-model planning with deterministic fire and smoke simulation workflows.</span> <span class="pub-links"><a href="https://github.com/xiao98/smoke-agent" aria-label="Code for SmokeAgent">GitHub</a></span>
+											<span class="pub-authors">Turns French smoke-control briefs into validated NIST FDS simulations via typed specs, deterministic input generation, and RFC 6902 JSON-patch repair (10/10 on FireBench's basic tier).</span> <span class="pub-links"><a href="https://github.com/xiao98/smoke-agent" aria-label="Code for SmokeAgent">GitHub</a></span>
 										</li>
 										<li>
 											<span class="pub-title"><a href="/projects/#fast-sinkhorn-cuda">Fast-Sinkhorn-CUDA</a></span>
-											<span class="pub-authors">A C++/CUDA implementation of regularized optimal transport using log-domain Sinkhorn iterations.</span> <span class="pub-links"><a href="https://github.com/xiao98/Fast-Sinkhorn-CUDA" aria-label="Code for Fast-Sinkhorn-CUDA">GitHub</a></span>
+											<span class="pub-authors">A native C++17/CUDA log-domain Sinkhorn solver with warp-level GPU reductions (12× faster than POT and 5.9× faster than GPU PyTorch at n = m = 8192 in 256 MB VRAM).</span> <span class="pub-links"><a href="https://github.com/xiao98/Fast-Sinkhorn-CUDA" aria-label="Code for Fast-Sinkhorn-CUDA">GitHub</a></span>
 										</li>
 									</ul>
 									<p><a href="/projects/">All projects →</a></p>

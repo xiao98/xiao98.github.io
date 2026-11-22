@@ -36,8 +36,8 @@
 								<article class="project">
 									<h2 id="concept-guided-exploration">Concept-guided exploration under limited compute</h2>
 									<p class="subtitle">Rewards for training a small model to guide a larger one</p>
-									<p>A small-scale reproduction of <a href="https://arxiv.org/abs/2609.26704">Labiad et al. (2026)</a>, where a small concept generator, trained with RL, lists approaches that a larger frozen model then follows. On one GPU, untrained concepts improve pass@8 by about 5 points over repeated sampling, but training left the reward flat: re-scoring the same lists shows the reward signal is too noisy at this budget.</p>
-									<p class="entry-links"><a href="/notes/concept-guided-exploration-one-gpu/" aria-label="Write-up of the concept-guided exploration reproduction">Write-up</a></p>
+									<p>A single-GPU re-implementation of <a href="https://arxiv.org/abs/2609.26704">Labiad et al. (2026)</a> on 200 screened DeepMath problems. Untrained concepts from the 7B solver lift pass@8 by 4.9 points (95% CI [2.1, 7.8]), while 100 steps of group-baseline RL on a 1.5B concept generator (16 rollouts/list) stall (reward 0.588 to 0.590; concepts/list 3.3 to 4.0). Rescoring 120 lists shows 0.78 raw score correlation but only 0.15 and 0.30 within-group advantage correlation across two repeats, and max-of-mean rewards bias expected scores upward for longer lists (0.200 to 0.408 at p = 0.2).</p>
+									<p class="entry-links"><a href="/notes/concept-guided-exploration-one-gpu/" aria-label="Write-up of the concept-guided exploration reproduction">Write-up</a><a href="/notes/questions/small-budget-rewards/" aria-label="Eight-part analysis of small-budget RL rewards">8-part analysis</a></p>
 								</article>
 
 								<article class="project">
@@ -83,24 +83,31 @@
 								</article>
 
 								<article class="project">
-									<h2 id="opengoal">OpenGOAL</h2>
-									<p class="subtitle">Persistent multi-agent problem solving</p>
-									<p>A multi-agent framework for persistent work on programming and mathematical tasks, built around explicit success criteria, iterative evaluation, and failure recovery.</p>
-									<p class="entry-links"><a href="https://github.com/xiao98/OpenGOAL" aria-label="OpenGOAL on GitHub">GitHub</a></p>
+									<h2 id="presidio-fr">presidio-fr &amp; FR-PII-Bench</h2>
+									<p class="subtitle">On-device French PII masking for LLMs and open benchmark</p>
+									<p>A local GDPR-compliant PII masking and restoration system (browser extension for ChatGPT, Claude, and Mistral Le Chat, plus a local OpenAI/Anthropic-compatible gateway) so personal data in French client documents never leaves the machine. Accompanied by FR-PII-Bench (300 synthetic French administrative documents, 2,105 entities across 13 types); benchmarking three open detectors and combining nym with French checksum, uppercase-name, and birth-date context rules reaches 0.990 recall and 0.973 precision at 50 ms per document on CPU in the browser, with no model retraining.</p>
+									<p class="entry-links"><a href="https://github.com/xiao98/presidio-fr-docs" aria-label="Public docs for presidio-fr on GitHub">Docs</a><a href="https://github.com/xiao98/presidio-fr-docs/blob/main/REPORT.md" aria-label="Technical report for presidio-fr">Report</a><a href="https://huggingface.co/datasets/JaqueBill/fr-pii-bench" aria-label="FR-PII-Bench dataset on Hugging Face">Dataset (HF)</a></p>
 								</article>
 
 								<article class="project">
 									<h2 id="smokeagent">SmokeAgent</h2>
 									<p class="subtitle">Language-model agents for scientific simulation</p>
-									<p>A research prototype that turns written smoke-control requirements into simulation workflows for NIST's Fire Dynamics Simulator (FDS). Built on Foam-Agent, it separates language-model planning from deterministic input generation and validation.</p>
+									<p>Retargeted Foam-Agent to NIST's Fire Dynamics Simulator (FDS 6.11) for French smoke-control briefs: the LLM fills a typed Pydantic ScenarioSpec, deterministic unit-tested code generates the .fds input through three layers of structural and physics validation, and a reviewer repairs errors with RFC 6902 JSON patches on the spec instead of editing solver files. Evaluated on FireBench (171 cases from NIST's validation suite); 10/10 runs on the basic tier fall within NIST Validation Guide Table 16.1 uncertainty bounds with zero human edits.</p>
 									<p class="entry-links"><a href="https://github.com/xiao98/smoke-agent" aria-label="SmokeAgent on GitHub">GitHub</a></p>
 								</article>
 
 								<article class="project">
 									<h2 id="fast-sinkhorn-cuda">Fast-Sinkhorn-CUDA</h2>
 									<p class="subtitle">GPU-accelerated optimal transport</p>
-									<p>A C++/CUDA implementation of the entropically regularized Sinkhorn algorithm, using log-domain computation and warp-level GPU reductions.</p>
+									<p>A native C++17/CUDA implementation of the entropically regularized Sinkhorn algorithm using log-domain computation and warp-level GPU reductions. At n = m = 8192 it runs 12× faster than POT and 5.9× faster than a GPU PyTorch baseline in 256 MB of GPU memory.</p>
 									<p class="entry-links"><a href="https://github.com/xiao98/Fast-Sinkhorn-CUDA" aria-label="Fast-Sinkhorn-CUDA on GitHub">GitHub</a><a href="https://arxiv.org/abs/2605.00837" aria-label="Paper for Fast-Sinkhorn-CUDA">Paper</a></p>
+								</article>
+
+								<article class="project">
+									<h2 id="opengoal">OpenGOAL</h2>
+									<p class="subtitle">Persistent multi-agent problem solving</p>
+									<p>A multi-agent framework for persistent work on programming and mathematical tasks, built around explicit success criteria, iterative evaluation, and failure recovery.</p>
+									<p class="entry-links"><a href="https://github.com/xiao98/OpenGOAL" aria-label="OpenGOAL on GitHub">GitHub</a></p>
 								</article>
 
 								<article class="project">
