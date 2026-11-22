@@ -1,0 +1,107 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html lang="en">
+	<head>
+		<title>Why the gain from concepts peaks at moderate budgets and fades at 64 attempts — Hao Xiao</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="Untrained concept guidance improves pass@k by about 5 points at 8 to 16 attempts and by nothing measurable at 64. A one-parameter model in which concepts make solutions come sooner reproduces the shape." />
+		<link rel="canonical" href="https://xiao98.github.io/notes/questions/small-budget-rewards-07-gain-peaks-at-moderate-budgets/" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Hao Xiao" />
+		<meta property="og:title" content="Why the gain from concepts peaks at moderate budgets and fades at 64 attempts — Hao Xiao" />
+		<meta property="og:description" content="Untrained concept guidance improves pass@k by about 5 points at 8 to 16 attempts and by nothing measurable at 64. A one-parameter model in which concepts make solutions come sooner reproduces the shape." />
+		<meta property="og:url" content="https://xiao98.github.io/notes/questions/small-budget-rewards-07-gain-peaks-at-moderate-budgets/" />
+		<meta name="twitter:card" content="summary" />
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<link rel="stylesheet" href="/assets/css/custom.css" />
+		<noscript><link rel="stylesheet" href="/assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<h1>Why the gain from concepts peaks at moderate budgets and fades at 64 attempts</h1>
+
+							<p>Published on 22 November 2026.</p>
+							<p class="series-meta">Part 7 of 8 in <a href="/notes/questions/small-budget-rewards/">Questions on rewards built from a few rollouts</a>.</p>
+
+							<p>Without any training, I compared repeated sampling with concept-guided sampling, where the 7B model first lists up to 8 approaches and spreads its attempts across them. Both use the same decoding settings, on the same 200 problems.</p>
+
+							<table>
+								<thead><tr><th>Attempts k</th><th>Repeated sampling, pass@k</th><th>Gain with concepts, points (paired 95% CI)</th></tr></thead>
+								<tbody>
+									<tr><td>1</td><td>10.3%</td><td>+1.4 [0.2, 2.6]</td></tr>
+									<tr><td>2</td><td>17.8%</td><td>+2.3 [0.6, 4.2]</td></tr>
+									<tr><td>4</td><td>28.6%</td><td>+3.5 [1.2, 5.8]</td></tr>
+									<tr><td>8</td><td>40.3%</td><td>+4.9 [2.1, 7.8]</td></tr>
+									<tr><td>16</td><td>51.4%</td><td>+5.3 [1.9, 8.8]</td></tr>
+									<tr><td>32</td><td>61.6%</td><td>+4.4 [0.5, 8.3]</td></tr>
+									<tr><td>64</td><td>71.0%</td><td>+2.5 [−2.5, 7.5]</td></tr>
+								</tbody>
+							</table>
+
+							<p>The gain grows up to 8 or 16 attempts, then shrinks. At 64 it can no longer be distinguished from zero.</p>
+
+							<h2>A model where concepts make solutions come sooner</h2>
+
+							<p>Suppose repeated sampling solves a problem with probability \(p\) per attempt, and concepts raise this to \(cp\) with \(c &gt; 1\). Then</p>
+
+							\[\text{gain}(k) = (1 - p)^k - (1 - cp)^k.\]
+
+							<p>For \(p = 0.1\) and \(c = 1.3\):</p>
+
+							<table>
+								<thead><tr><th>Attempts k</th><th>1</th><th>2</th><th>4</th><th>8</th><th>16</th><th>32</th><th>64</th></tr></thead>
+								<tbody>
+									<tr><td>Gain, points</td><td>3.0</td><td>5.3</td><td>8.3</td><td>10.2</td><td>7.8</td><td>2.3</td><td>0.1</td></tr>
+								</tbody>
+							</table>
+
+							<p>The gain is small at \(k = 1\), where it is just \((c - 1)p\). It is largest when one method has usually found a solution and the other has not yet. It goes back to zero once both have. The real set mixes problems with many values of \(p\), which widens the peak, but the shape is the same.</p>
+
+							<h2>What a different mechanism would look like</h2>
+
+							<p>If concepts instead made solvable some problems that repeated sampling never solves (\(p = 0\)), the gain would keep growing with \(k\) and stay. My set cannot show much of that: its problems were selected as solved at most 2 times out of 8, not never, and repeated sampling already reaches 71% at 64 attempts. The paper's hard set is made of problems its answer model solved 0 times out of 128 at screening, and there it reports pass@128 going from 19.0% with repeated sampling to 39.2% with a trained generator.</p>
+
+							<h2>Limits</h2>
+
+							<ul>
+								<li>The model is an illustration with one invented pair \((p, c)\). I did not fit it to the data.</li>
+								<li>The intervals are not corrected for testing seven values of \(k\).</li>
+							</ul>
+
+							<h2>Takeaway</h2>
+
+							<p>On problems the answer model can already solve sometimes, untrained concepts behave as if they made solutions come sooner. That shows up as a gain at moderate budgets and vanishes at large ones. Whether concepts unlock new problems has to be tested on problems the model never solves.</p>
+
+							<nav class="series-nav" aria-label="Series navigation">
+								<a href="/notes/questions/small-budget-rewards-06-binary-answers-and-screening/">&larr; Previous: Yes/no answers and screening</a>
+								<a href="/notes/questions/small-budget-rewards/">Series index</a>
+								<a href="/notes/questions/small-budget-rewards-08-identical-reward-groups/">Next: Identical-reward groups &rarr;</a>
+							</nav>
+
+							<div id="comments"></div>
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="/assets/js/site.js"></script>
+			<script src="/assets/js/comments.js"></script>
+			<script src="/assets/js/jquery.min.js"></script>
+			<script src="/assets/js/browser.min.js"></script>
+			<script src="/assets/js/breakpoints.min.js"></script>
+			<script src="/assets/js/util.js"></script>
+			<script src="/assets/js/main.js"></script>
+
+	</body>
+</html>

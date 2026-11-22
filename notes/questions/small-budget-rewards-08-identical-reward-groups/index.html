@@ -1,0 +1,96 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html lang="en">
+	<head>
+		<title>Why a group whose rollouts all get the same reward teaches nothing — Hao Xiao</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="In a GRPO pilot with 8 rollouts per task, half the task groups had identical rewards and contributed no gradient. The probability of this as a function of task difficulty and group size." />
+		<link rel="canonical" href="https://xiao98.github.io/notes/questions/small-budget-rewards-08-identical-reward-groups/" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Hao Xiao" />
+		<meta property="og:title" content="Why a group whose rollouts all get the same reward teaches nothing — Hao Xiao" />
+		<meta property="og:description" content="In a GRPO pilot with 8 rollouts per task, half the task groups had identical rewards and contributed no gradient. The probability of this as a function of task difficulty and group size." />
+		<meta property="og:url" content="https://xiao98.github.io/notes/questions/small-budget-rewards-08-identical-reward-groups/" />
+		<meta name="twitter:card" content="summary" />
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<link rel="stylesheet" href="/assets/css/custom.css" />
+		<noscript><link rel="stylesheet" href="/assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<h1>Why a group whose rollouts all get the same reward teaches nothing</h1>
+
+							<p>Published on 22 November 2026.</p>
+							<p class="series-meta">Part 8 of 8 in <a href="/notes/questions/small-budget-rewards/">Questions on rewards built from a few rollouts</a>.</p>
+
+							<p>The previous parts are about a noisy reward. This one is about a reward with no variation at all, in a different project: <a href="https://github.com/xiao98/mini-conductor">mini-conductor</a>, where a model is trained with GRPO to write plans that route a task to worker models. A training step uses 8 tasks with 8 rollouts each, and a rollout is rewarded 1 if the final answer is right, 0.2 if the plan is valid but the answer is wrong, and 0 otherwise.</p>
+
+							<p>In the second step of the pilot run, 4 of the 8 task groups had the same reward on all 8 rollouts.</p>
+
+							<h2>Why such a group contributes nothing</h2>
+
+							<p>As in <a href="/notes/questions/small-budget-rewards-01-within-group-differences/">Part 1</a>, the update weights each rollout by its reward minus the mean of its group. If all rewards in a group are equal, every weight is zero. The step ran 64 rollouts and learned from 32.</p>
+
+							<h2>How often this happens</h2>
+
+							<p>Ignore the 0.2 level and say each rollout of a task succeeds independently with probability \(p\). A group of \(G\) rollouts is uninformative with probability</p>
+
+							\[P(\text{all equal}) = p^G + (1 - p)^G.\]
+
+							<table>
+								<thead><tr><th>Success rate \(p\) of the task</th><th>0.5</th><th>0.8</th><th>0.9</th><th>0.95</th><th>0.99</th></tr></thead>
+								<tbody>
+									<tr><td>8 rollouts per task</td><td>0.8%</td><td>17%</td><td>43%</td><td>66%</td><td>92%</td></tr>
+									<tr><td>64 rollouts per task</td><td>0%</td><td>0%</td><td>0.1%</td><td>3.8%</td><td>53%</td></tr>
+								</tbody>
+							</table>
+
+							<p>With 8 rollouts, a task the policy solves 90% of the time gives no signal in 43% of its groups. The paper this project follows uses 64 rollouts per task, where this stops being a concern except for tasks that are almost always or almost never solved.</p>
+
+							<h2>What follows for the choice of tasks</h2>
+
+							<p>An average accuracy says little about this. The warm-started policy here is right on about two tasks out of three, which is compatible with many tasks being close to always solved or never solved, and those are the tasks that produce identical groups. Small groups need tasks of intermediate difficulty <em>for the current policy</em>. In the concept-guided training of the earlier parts, I selected training problems that the answer model solved 1 to 5 times out of 8 at screening for this reason.</p>
+
+							<h2>Limits</h2>
+
+							<ul>
+								<li>This is one training step of a pilot that was stopped after two steps.</li>
+								<li>Rollouts of one task are treated as independent with a common \(p\), and the 0.2 reward for a valid plan with a wrong answer is ignored. It makes identical groups slightly less likely.</li>
+							</ul>
+
+							<h2>Takeaway</h2>
+
+							<p>With small groups, the effective batch size is the number of groups whose rewards differ. It is worth logging at every step, and worth raising by choosing tasks the current policy sometimes solves and sometimes does not.</p>
+
+							<nav class="series-nav" aria-label="Series navigation">
+								<a href="/notes/questions/small-budget-rewards-07-gain-peaks-at-moderate-budgets/">&larr; Previous: Gain against budget</a>
+								<a href="/notes/questions/small-budget-rewards/">Series index</a>
+							</nav>
+
+							<div id="comments"></div>
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="/assets/js/site.js"></script>
+			<script src="/assets/js/comments.js"></script>
+			<script src="/assets/js/jquery.min.js"></script>
+			<script src="/assets/js/browser.min.js"></script>
+			<script src="/assets/js/breakpoints.min.js"></script>
+			<script src="/assets/js/util.js"></script>
+			<script src="/assets/js/main.js"></script>
+
+	</body>
+</html>

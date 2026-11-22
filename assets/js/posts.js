@@ -12,9 +12,25 @@
 		['2026/11/14', 'agent-memory-is-files', "An agent's memory is the files it writes"],
 		['2026/11/17', 'concept-guided-exploration-one-gpu', 'Reproducing concept-guided exploration on one GPU'],
 		['2026/11/19', 'questions/structlora', 'Ten questions on StructLoRA (series)'],
+		['2026/11/22', 'questions/small-budget-rewards', 'Eight questions on rewards built from a few rollouts (series)'],
 	];
 
 	var SERIES = [
+		{
+			slug: 'questions/small-budget-rewards',
+			title: 'Questions on rewards built from a few rollouts',
+			summary: 'Eight self-contained questions on reward reliability in small-budget reinforcement learning for language models: within-group advantages, estimation noise, max-of-mean bias, and problem selection.',
+			posts: [
+				['2026/11/22', 'questions/small-budget-rewards-01-within-group-differences', 'Why training only sees the differences between lists of the same problem'],
+				['2026/11/22', 'questions/small-budget-rewards-02-raw-vs-advantage-agreement', 'Why two reward estimates can agree at 0.78 while their advantages agree at 0.15'],
+				['2026/11/22', 'questions/small-budget-rewards-03-how-many-answers', 'How many answers per list a reliable advantage needs'],
+				['2026/11/22', 'questions/small-budget-rewards-04-max-of-mean-bias', 'Why max-of-mean pays for listing more concepts that are no better'],
+				['2026/11/22', 'questions/small-budget-rewards-05-more-or-better-concepts', 'Why “better concepts” and “more concepts” cannot be told apart at a fixed budget'],
+				['2026/11/22', 'questions/small-budget-rewards-06-binary-answers-and-screening', 'Why a “hard” label and yes/no answers can make pass@k meaningless'],
+				['2026/11/22', 'questions/small-budget-rewards-07-gain-peaks-at-moderate-budgets', 'Why the gain from concepts peaks at moderate budgets and fades at 64 attempts'],
+				['2026/11/22', 'questions/small-budget-rewards-08-identical-reward-groups', 'Why a group whose rollouts all get the same reward teaches nothing'],
+			]
+		},
 		{
 			slug: 'questions/structlora',
 			title: 'Questions on StructLoRA (ACL 2026)',

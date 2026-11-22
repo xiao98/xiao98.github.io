@@ -1,0 +1,86 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html lang="en">
+	<head>
+		<title>Eight questions on rewards built from a few rollouts — Hao Xiao</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="An eight-part question-driven series on reward reliability in small-budget reinforcement learning for language models: within-group advantages, estimation noise, max-of-mean bias, and problem selection." />
+		<link rel="canonical" href="https://xiao98.github.io/notes/questions/small-budget-rewards/" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Hao Xiao" />
+		<meta property="og:title" content="Eight questions on rewards built from a few rollouts — Hao Xiao" />
+		<meta property="og:description" content="An eight-part question-driven series on reward reliability in small-budget reinforcement learning for language models: within-group advantages, estimation noise, max-of-mean bias, and problem selection." />
+		<meta property="og:url" content="https://xiao98.github.io/notes/questions/small-budget-rewards/" />
+		<meta name="twitter:card" content="summary" />
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<link rel="stylesheet" href="/assets/css/custom.css" />
+		<noscript><link rel="stylesheet" href="/assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<h1>Eight questions on rewards built from a few rollouts</h1>
+
+							<p>Published on 22 November 2026.</p>
+
+							<p>Training a language model with reinforcement learning on what another model does with its output needs a reward for every sampled output, and each reward costs many generations. The published setups spend 64 to 128 rollouts on each one. On a single GPU I could afford 8 to 16, and my training reward did not move.</p>
+
+							<p>These eight short entries take the reward apart: what the update actually uses, how noisy and how biased that quantity is when it is built from a few rollouts, and how the choice of problems decides whether there is any signal at all. Parts 1 to 7 come from <a href="/notes/concept-guided-exploration-one-gpu/">my reproduction of concept-guided exploration</a> (Labiad et al., 2026), and Part 8 from <a href="https://github.com/xiao98/mini-conductor">mini-conductor</a>. Each entry isolates one derivation or one check. All measurements come from one training run and small samples, and each entry states its limits.</p>
+
+							<h2>Part I · What the update uses</h2>
+
+							<ul class="post-list">
+								<li><span class="series-num">01</span><a href="/notes/questions/small-budget-rewards-01-within-group-differences/">Why training only sees the differences between lists of the same problem</a></li>
+								<li><span class="series-num">02</span><a href="/notes/questions/small-budget-rewards-02-raw-vs-advantage-agreement/">Why two reward estimates can agree at 0.78 while their advantages agree at 0.15</a></li>
+								<li><span class="series-num">03</span><a href="/notes/questions/small-budget-rewards-03-how-many-answers/">How many answers per list a reliable advantage needs</a></li>
+							</ul>
+
+							<h2>Part II · A reward that pays for length</h2>
+
+							<ul class="post-list">
+								<li><span class="series-num">04</span><a href="/notes/questions/small-budget-rewards-04-max-of-mean-bias/">Why max-of-mean pays for listing more concepts that are no better</a></li>
+								<li><span class="series-num">05</span><a href="/notes/questions/small-budget-rewards-05-more-or-better-concepts/">Why “better concepts” and “more concepts” cannot be told apart at a fixed budget</a></li>
+							</ul>
+
+							<h2>Part III · Problems that carry signal</h2>
+
+							<ul class="post-list">
+								<li><span class="series-num">06</span><a href="/notes/questions/small-budget-rewards-06-binary-answers-and-screening/">Why a “hard” label and yes/no answers can make pass@k meaningless</a></li>
+								<li><span class="series-num">07</span><a href="/notes/questions/small-budget-rewards-07-gain-peaks-at-moderate-budgets/">Why the gain from concepts peaks at moderate budgets and fades at 64 attempts</a></li>
+								<li><span class="series-num">08</span><a href="/notes/questions/small-budget-rewards-08-identical-reward-groups/">Why a group whose rollouts all get the same reward teaches nothing</a></li>
+							</ul>
+
+							<h2>Key references</h2>
+
+							<ul>
+								<li>Labiad, Kowalski, Schoenauer, Munos and Kempe (2026). <em>Beyond Repeated Sampling: Learning Search Policies for LLM Reasoning</em>. <a href="https://arxiv.org/abs/2609.26704">arXiv:2609.26704</a>.</li>
+								<li>Sakana AI (2026). <em>Learning to Orchestrate Agents in Natural Language with the Conductor</em>. ICLR 2026. <a href="https://arxiv.org/abs/2512.04388">arXiv:2512.04388</a>.</li>
+								<li>Williams (1992). <em>Simple Statistical Gradient-Following Algorithms for Connectionist Reinforcement Learning</em>. Machine Learning 8.</li>
+							</ul>
+
+							<div id="comments"></div>
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="/assets/js/site.js"></script>
+			<script src="/assets/js/comments.js"></script>
+			<script src="/assets/js/jquery.min.js"></script>
+			<script src="/assets/js/browser.min.js"></script>
+			<script src="/assets/js/breakpoints.min.js"></script>
+			<script src="/assets/js/util.js"></script>
+			<script src="/assets/js/main.js"></script>
+
+	</body>
+</html>

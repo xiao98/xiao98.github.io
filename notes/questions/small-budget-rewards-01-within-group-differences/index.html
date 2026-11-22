@@ -1,0 +1,83 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html lang="en">
+	<head>
+		<title>Why training only sees the differences between lists of the same problem — Hao Xiao</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="The group-mean baseline in a policy-gradient update removes everything a problem&#x27;s lists have in common, so only their differences reach the concept generator." />
+		<link rel="canonical" href="https://xiao98.github.io/notes/questions/small-budget-rewards-01-within-group-differences/" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Hao Xiao" />
+		<meta property="og:title" content="Why training only sees the differences between lists of the same problem — Hao Xiao" />
+		<meta property="og:description" content="The group-mean baseline in a policy-gradient update removes everything a problem&#x27;s lists have in common, so only their differences reach the concept generator." />
+		<meta property="og:url" content="https://xiao98.github.io/notes/questions/small-budget-rewards-01-within-group-differences/" />
+		<meta name="twitter:card" content="summary" />
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<link rel="stylesheet" href="/assets/css/custom.css" />
+		<noscript><link rel="stylesheet" href="/assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<h1>Why training only sees the differences between lists of the same problem</h1>
+
+							<p>Published on 22 November 2026.</p>
+							<p class="series-meta">Part 1 of 8 in <a href="/notes/questions/small-budget-rewards/">Questions on rewards built from a few rollouts</a>.</p>
+
+							<p>In <a href="/notes/concept-guided-exploration-one-gpu/">my reproduction of concept-guided exploration</a>, a small model writes a list of approaches ("concepts") for a math problem, and a larger frozen model answers the problem following them. The small model is trained on how often the large one succeeds. For each problem \(i\) it writes 6 lists; list \(j\) gets a reward \(r_{ij}\) computed from 16 answers.</p>
+
+							<p>The update is REINFORCE with a group-mean baseline:</p>
+
+							\[g = \sum_i \sum_{j=1}^{6} \left(r_{ij} - \bar r_i\right) \nabla_\theta \log \pi_\theta(\text{list}_{ij} \mid \text{problem}_i), \qquad \bar r_i = \frac{1}{6}\sum_{j=1}^{6} r_{ij}.\]
+
+							<p>The raw reward never appears on its own. A list is pushed up only if it scored above the other lists written for the same problem.</p>
+
+							<h2>Why subtract the mean</h2>
+
+							<p>Most of what a raw reward says is how hard the problem is. A list written for an easy problem gets a high reward whatever it contains, and without a baseline the update would increase the probability of every list written for easy problems. The generator cannot change which problem it was given, so that part of the reward carries nothing it can learn from.</p>
+
+							<p>Subtracting a baseline that does not depend on the list leaves the expected gradient unchanged, because \(\mathbb{E}_{\pi}[\nabla_\theta \log \pi_\theta] = 0\). The group mean includes the list's own reward, which only rescales the update:</p>
+
+							\[r_{ij} - \bar r_i = \frac{5}{6}\left(r_{ij} - \frac{1}{5}\sum_{k \ne j} r_{ik}\right).\]
+
+							<p>So the group-mean baseline is the leave-one-out baseline, which is independent of list \(j\), times a constant \(5/6\).</p>
+
+							<h2>What this costs</h2>
+
+							<p>Whatever the six lists of a problem share is removed from the signal. That is the intended effect for problem difficulty. It also means the quantity that has to be measured accurately is the difference between lists, and this difference is much smaller than the reward itself. <a href="/notes/questions/small-budget-rewards-02-raw-vs-advantage-agreement/">Part 2</a> measures how small.</p>
+
+							<h2>Takeaway</h2>
+
+							<p>With a group-mean baseline, the training signal is the spread of rewards inside one problem. A reward can look stable overall and still give an unreliable update if that spread is small compared with the estimation noise.</p>
+
+							<nav class="series-nav" aria-label="Series navigation">
+								<a href="/notes/questions/small-budget-rewards/">Series index</a>
+								<a href="/notes/questions/small-budget-rewards-02-raw-vs-advantage-agreement/">Next: Raw scores vs advantages &rarr;</a>
+							</nav>
+
+							<div id="comments"></div>
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="/assets/js/site.js"></script>
+			<script src="/assets/js/comments.js"></script>
+			<script src="/assets/js/jquery.min.js"></script>
+			<script src="/assets/js/browser.min.js"></script>
+			<script src="/assets/js/breakpoints.min.js"></script>
+			<script src="/assets/js/util.js"></script>
+			<script src="/assets/js/main.js"></script>
+
+	</body>
+</html>

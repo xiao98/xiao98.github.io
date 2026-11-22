@@ -1,0 +1,106 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html lang="en">
+	<head>
+		<title>How many answers per list a reliable advantage needs — Hao Xiao</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="Extrapolating the measured agreement at 16 answers per list with the Spearman-Brown formula: what 32, 64, 128 and 256 answers would buy, and what they cost." />
+		<link rel="canonical" href="https://xiao98.github.io/notes/questions/small-budget-rewards-03-how-many-answers/" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Hao Xiao" />
+		<meta property="og:title" content="How many answers per list a reliable advantage needs — Hao Xiao" />
+		<meta property="og:description" content="Extrapolating the measured agreement at 16 answers per list with the Spearman-Brown formula: what 32, 64, 128 and 256 answers would buy, and what they cost." />
+		<meta property="og:url" content="https://xiao98.github.io/notes/questions/small-budget-rewards-03-how-many-answers/" />
+		<meta name="twitter:card" content="summary" />
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<link rel="stylesheet" href="/assets/css/custom.css" />
+		<noscript><link rel="stylesheet" href="/assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<h1>How many answers per list a reliable advantage needs</h1>
+
+							<p>Published on 22 November 2026.</p>
+							<p class="series-meta">Part 3 of 8 in <a href="/notes/questions/small-budget-rewards/">Questions on rewards built from a few rollouts</a>.</p>
+
+							<p><a href="/notes/questions/small-budget-rewards-02-raw-vs-advantage-agreement/">Part 2</a> measured, with 16 answers per concept list, a correlation of 0.15 to 0.30 between two independent estimates of the within-problem advantage. The paper I was reproducing uses 128 answers per list. This part asks what that factor of 8 buys.</p>
+
+							<h2>Extrapolating the agreement</h2>
+
+							<p>Keep the model of Part 2: an advantage is a real difference \(\delta\) plus noise \(\varepsilon\), with agreement \(\rho = \sigma_\delta^2 / (\sigma_\delta^2 + \sigma_\varepsilon^2)\). If the reward were a plain average of \(R\) answers, the noise variance would scale as \(1/R\). Multiplying the number of answers by \(m\) then gives the Spearman-Brown formula:</p>
+
+							\[\rho_m = \frac{m\,\rho}{1 + (m - 1)\,\rho}.\]
+
+							<table>
+								<thead><tr><th>Answers per list</th><th>16 (measured)</th><th>32</th><th>64</th><th>128</th><th>256</th></tr></thead>
+								<tbody>
+									<tr><td>If the agreement at 16 is 0.15</td><td>0.15</td><td>0.26</td><td>0.41</td><td>0.59</td><td>0.74</td></tr>
+									<tr><td>If the agreement at 16 is 0.30</td><td>0.30</td><td>0.46</td><td>0.63</td><td>0.77</td><td>0.87</td></tr>
+								</tbody>
+							</table>
+
+							<p>Only the first column is measured. The others are predictions. Under this model, an agreement of 0.8 needs between about 150 and 360 answers per list.</p>
+
+							<h2>Why the noise is so large at 16</h2>
+
+							<p>The 16 answers are split across up to 4 concepts, so each concept's success rate is estimated from about 4 answers. The standard error of a success rate \(p\) estimated from \(n\) answers is \(\sqrt{p(1-p)/n}\):</p>
+
+							<table>
+								<thead><tr><th>Answers per concept</th><th>4</th><th>16</th><th>32</th><th>128</th></tr></thead>
+								<tbody>
+									<tr><td>Standard error at \(p = 0.2\)</td><td>0.20</td><td>0.10</td><td>0.07</td><td>0.04</td></tr>
+									<tr><td>Standard error at \(p = 0.5\)</td><td>0.25</td><td>0.13</td><td>0.09</td><td>0.04</td></tr>
+								</tbody>
+							</table>
+
+							<p>With 4 answers, the possible values of the estimate are 0, 0.25, 0.5, 0.75 and 1, and its standard error is as large as a typical success rate on hard problems.</p>
+
+							<h2>What it costs</h2>
+
+							<p>In my evaluation without training, writing the concepts took about 0.03M tokens and answering took about 12.5M. The answers are essentially the whole cost, so going from 16 to 128 answers per list multiplies the compute by 8.</p>
+
+							<h2>Limits</h2>
+
+							<ul>
+								<li>The reward is a maximum over concepts, not an average, so the \(1/R\) scaling of the noise is an approximation. <a href="/notes/questions/small-budget-rewards-04-max-of-mean-bias/">Part 4</a> shows that the maximum also adds a bias.</li>
+								<li>The starting values 0.15 and 0.30 come from 20 problems.</li>
+								<li>I have not measured the agreement at any budget other than 16.</li>
+							</ul>
+
+							<h2>Takeaway</h2>
+
+							<p>On this extrapolation, 128 answers per list would bring the agreement of advantages to roughly 0.6 to 0.8, at 8 times the compute. The question for a small budget is whether a better estimator can reach that agreement with fewer answers.</p>
+
+							<nav class="series-nav" aria-label="Series navigation">
+								<a href="/notes/questions/small-budget-rewards-02-raw-vs-advantage-agreement/">&larr; Previous: Raw scores vs advantages</a>
+								<a href="/notes/questions/small-budget-rewards/">Series index</a>
+								<a href="/notes/questions/small-budget-rewards-04-max-of-mean-bias/">Next: Max-of-mean bias &rarr;</a>
+							</nav>
+
+							<div id="comments"></div>
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="/assets/js/site.js"></script>
+			<script src="/assets/js/comments.js"></script>
+			<script src="/assets/js/jquery.min.js"></script>
+			<script src="/assets/js/browser.min.js"></script>
+			<script src="/assets/js/breakpoints.min.js"></script>
+			<script src="/assets/js/util.js"></script>
+			<script src="/assets/js/main.js"></script>
+
+	</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html lang="en">
+	<head>
+		<title>Why “better concepts” and “more concepts” cannot be told apart at a fixed budget — Hao Xiao</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="The trained concept generator scores 6 points higher at 64 attempts, but it also lists more concepts, and more concepts help at a fixed budget. Why one run cannot separate the two." />
+		<link rel="canonical" href="https://xiao98.github.io/notes/questions/small-budget-rewards-05-more-or-better-concepts/" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Hao Xiao" />
+		<meta property="og:title" content="Why “better concepts” and “more concepts” cannot be told apart at a fixed budget — Hao Xiao" />
+		<meta property="og:description" content="The trained concept generator scores 6 points higher at 64 attempts, but it also lists more concepts, and more concepts help at a fixed budget. Why one run cannot separate the two." />
+		<meta property="og:url" content="https://xiao98.github.io/notes/questions/small-budget-rewards-05-more-or-better-concepts/" />
+		<meta name="twitter:card" content="summary" />
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<link rel="stylesheet" href="/assets/css/custom.css" />
+		<noscript><link rel="stylesheet" href="/assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<h1>Why “better concepts” and “more concepts” cannot be told apart at a fixed budget</h1>
+
+							<p>Published on 22 November 2026.</p>
+							<p class="series-meta">Part 5 of 8 in <a href="/notes/questions/small-budget-rewards/">Questions on rewards built from a few rollouts</a>.</p>
+
+							<p>After training, the 1.5B concept generator does better than before training on 200 held-out problems:</p>
+
+							<table>
+								<thead><tr><th>Attempts k</th><th>Before training, pass@k</th><th>After training, pass@k</th></tr></thead>
+								<tbody>
+									<tr><td>4</td><td>30.0%</td><td>32.3%</td></tr>
+									<tr><td>64</td><td>68.5%</td><td>74.5%</td></tr>
+								</tbody>
+							</table>
+
+							<p>The difference at 64 attempts is 6.0 points, with a paired bootstrap 95% interval of [0.0, 12.0]. Even taken at face value, it has two possible causes.</p>
+
+							<h2>Two explanations for the same number</h2>
+
+							<p>Training changed the lists in one visible way: the average number of concepts went from 3.3 to 4.0.</p>
+
+							<ul>
+								<li><strong>Better concepts.</strong> The generator learned which approaches make the answer model succeed.</li>
+								<li><strong>More concepts.</strong> At a fixed number of attempts, the answers are spread across the concepts in turn. A longer list spreads them wider, which helps even if no concept is better than before. The paper reports this effect itself: more concepts improve pass@k at a fixed budget.</li>
+							</ul>
+
+							<p>A pass@k comparison at equal budget measures the sum of the two. And <a href="/notes/questions/small-budget-rewards-04-max-of-mean-bias/">Part 4</a> gives a reason to expect the second one: the training reward pays for longer lists.</p>
+
+							<h2>What would separate them</h2>
+
+							<ul>
+								<li>Compare lists of the same length: force both generators to write exactly 4 concepts, or cut the trained generator's lists to the lengths of the untrained one's.</li>
+								<li>Compare per concept: the success rate of the answer model when it follows one concept, before and after training, with the same number of answers for each.</li>
+								<li>Repeat the training. This is one run with one seed.</li>
+							</ul>
+
+							<p>I have done none of these yet. One more comparison points the same way: the trained 1.5B generator is not distinguishable, at any number of attempts, from the untrained 7B model writing its own concepts.</p>
+
+							<h2>Takeaway</h2>
+
+							<p>When training changes how many concepts a generator writes, a gain in pass@k at a fixed budget is not evidence that the concepts got better. The number of concepts has to be held fixed before the comparison means that.</p>
+
+							<nav class="series-nav" aria-label="Series navigation">
+								<a href="/notes/questions/small-budget-rewards-04-max-of-mean-bias/">&larr; Previous: Max-of-mean bias</a>
+								<a href="/notes/questions/small-budget-rewards/">Series index</a>
+								<a href="/notes/questions/small-budget-rewards-06-binary-answers-and-screening/">Next: Yes/no answers and screening &rarr;</a>
+							</nav>
+
+							<div id="comments"></div>
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="/assets/js/site.js"></script>
+			<script src="/assets/js/comments.js"></script>
+			<script src="/assets/js/jquery.min.js"></script>
+			<script src="/assets/js/browser.min.js"></script>
+			<script src="/assets/js/breakpoints.min.js"></script>
+			<script src="/assets/js/util.js"></script>
+			<script src="/assets/js/main.js"></script>
+
+	</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html lang="en">
+	<head>
+		<title>Why two reward estimates can agree at 0.78 while their advantages agree at 0.15 — Hao Xiao</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="Scoring the same 120 concept lists twice gives rewards that correlate at 0.78 but within-problem advantages that correlate at 0.15 to 0.30. A variance decomposition explains the gap." />
+		<link rel="canonical" href="https://xiao98.github.io/notes/questions/small-budget-rewards-02-raw-vs-advantage-agreement/" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Hao Xiao" />
+		<meta property="og:title" content="Why two reward estimates can agree at 0.78 while their advantages agree at 0.15 — Hao Xiao" />
+		<meta property="og:description" content="Scoring the same 120 concept lists twice gives rewards that correlate at 0.78 but within-problem advantages that correlate at 0.15 to 0.30. A variance decomposition explains the gap." />
+		<meta property="og:url" content="https://xiao98.github.io/notes/questions/small-budget-rewards-02-raw-vs-advantage-agreement/" />
+		<meta name="twitter:card" content="summary" />
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<link rel="stylesheet" href="/assets/css/custom.css" />
+		<noscript><link rel="stylesheet" href="/assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<h1>Why two reward estimates can agree at 0.78 while their advantages agree at 0.15</h1>
+
+							<p>Published on 22 November 2026.</p>
+							<p class="series-meta">Part 2 of 8 in <a href="/notes/questions/small-budget-rewards/">Questions on rewards built from a few rollouts</a>.</p>
+
+							<p>I took 20 training problems with 6 concept lists each, and scored the same 120 lists twice, each time with 16 fresh answers per list. Then I compared the two scorings.</p>
+
+							<table>
+								<thead><tr><th>Compared between the two scorings</th><th>Correlation</th></tr></thead>
+								<tbody>
+									<tr><td>Raw rewards</td><td>0.78</td></tr>
+									<tr><td>Reward minus the mean of its problem (the advantage)</td><td>0.15 and 0.30</td></tr>
+								</tbody>
+							</table>
+
+							<p>The second line is the one that matters: as <a href="/notes/questions/small-budget-rewards-01-within-group-differences/">Part 1</a> shows, the update only uses a list's reward minus the mean of its problem. The protocol was run twice on the same lists, which gave 0.15 and 0.30.</p>
+
+							<h2>A variance decomposition</h2>
+
+							<p>Write one scoring of list \(j\) of problem \(i\) as</p>
+
+							\[r_{ij} = \mu_i + \delta_{ij} + \varepsilon_{ij},\]
+
+							<p>where \(\mu_i\) is how easy the problem is, \(\delta_{ij}\) is how much better this list really is than the others, and \(\varepsilon_{ij}\) is the noise from having only 16 answers. The first two are the same in both scorings and the noise is independent. With variances \(\sigma_\mu^2\), \(\sigma_\delta^2\), \(\sigma_\varepsilon^2\), the correlation between two scorings is</p>
+
+							\[\rho_{\text{raw}} = \frac{\sigma_\mu^2 + \sigma_\delta^2}{\sigma_\mu^2 + \sigma_\delta^2 + \sigma_\varepsilon^2}, \qquad \rho_{\text{adv}} = \frac{\sigma_\delta^2}{\sigma_\delta^2 + \sigma_\varepsilon^2}.\]
+
+							<p>Subtracting the problem mean removes \(\mu_i\) and multiplies the other two variances by the same factor \(5/6\), which cancels in the ratio.</p>
+
+							<h2>Solving for the three variances</h2>
+
+							<p>Set \(\sigma_\varepsilon^2 = 1\). From \(\rho_{\text{adv}}\) between 0.15 and 0.30, \(\sigma_\delta^2\) is between 0.18 and 0.43. From \(\rho_{\text{raw}} = 0.78\), \(\sigma_\mu^2 + \sigma_\delta^2 = 3.55\), so \(\sigma_\mu^2\) is between 3.1 and 3.4.</p>
+
+							<table>
+								<thead><tr><th></th><th>Advantages agree at 0.15</th><th>Advantages agree at 0.30</th></tr></thead>
+								<tbody>
+									<tr><td>Problem difficulty, \(\sigma_\mu^2\)</td><td>3.37</td><td>3.12</td></tr>
+									<tr><td>Real difference between lists, \(\sigma_\delta^2\)</td><td>0.18</td><td>0.43</td></tr>
+									<tr><td>Noise, \(\sigma_\varepsilon^2\)</td><td>1</td><td>1</td></tr>
+								</tbody>
+							</table>
+
+							<p>Between 88% and 95% of what is reproducible in a raw reward is the difficulty of the problem, which the baseline throws away. In what is left, noise is between two and six times larger than the real difference between lists: 70% to 85% of the variance of an advantage is noise.</p>
+
+							<h2>Limits</h2>
+
+							<ul>
+								<li>The additive model is a simplification. The reward here is a maximum over concepts, and its noise depends on the success rate.</li>
+								<li>There are only 20 problems, and the six lists of a problem share a baseline, so the uncertainty should be assessed by resampling problems. The distance between 0.15 and 0.30 already shows how imprecise the estimate is.</li>
+								<li>Low agreement shows that the signal is noisy. It does not show that noise is why the training reward stayed flat.</li>
+							</ul>
+
+							<h2>Takeaway</h2>
+
+							<p>The agreement of raw rewards says little about the training signal. The check that matters is to score the same lists twice and correlate the advantages.</p>
+
+							<nav class="series-nav" aria-label="Series navigation">
+								<a href="/notes/questions/small-budget-rewards-01-within-group-differences/">&larr; Previous: Within-problem differences</a>
+								<a href="/notes/questions/small-budget-rewards/">Series index</a>
+								<a href="/notes/questions/small-budget-rewards-03-how-many-answers/">Next: How many answers &rarr;</a>
+							</nav>
+
+							<div id="comments"></div>
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="/assets/js/site.js"></script>
+			<script src="/assets/js/comments.js"></script>
+			<script src="/assets/js/jquery.min.js"></script>
+			<script src="/assets/js/browser.min.js"></script>
+			<script src="/assets/js/breakpoints.min.js"></script>
+			<script src="/assets/js/util.js"></script>
+			<script src="/assets/js/main.js"></script>
+
+	</body>
+</html>

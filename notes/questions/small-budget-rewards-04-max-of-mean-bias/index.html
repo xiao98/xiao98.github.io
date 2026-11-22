@@ -1,0 +1,105 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html lang="en">
+	<head>
+		<title>Why max-of-mean pays for listing more concepts that are no better — Hao Xiao</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="A reward defined as the best observed success rate among a list&#x27;s concepts is biased upward, and the bias grows with the number of concepts. Exact values for 16, 64 and 128 answers." />
+		<link rel="canonical" href="https://xiao98.github.io/notes/questions/small-budget-rewards-04-max-of-mean-bias/" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Hao Xiao" />
+		<meta property="og:title" content="Why max-of-mean pays for listing more concepts that are no better — Hao Xiao" />
+		<meta property="og:description" content="A reward defined as the best observed success rate among a list&#x27;s concepts is biased upward, and the bias grows with the number of concepts. Exact values for 16, 64 and 128 answers." />
+		<meta property="og:url" content="https://xiao98.github.io/notes/questions/small-budget-rewards-04-max-of-mean-bias/" />
+		<meta name="twitter:card" content="summary" />
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<link rel="stylesheet" href="/assets/css/custom.css" />
+		<noscript><link rel="stylesheet" href="/assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<h1>Why max-of-mean pays for listing more concepts that are no better</h1>
+
+							<p>Published on 22 November 2026.</p>
+							<p class="series-meta">Part 4 of 8 in <a href="/notes/questions/small-budget-rewards/">Questions on rewards built from a few rollouts</a>.</p>
+
+							<p>The reward of a concept list is the highest success rate among its concepts (max-of-mean): if one approach works, the list is good. With a fixed number of answers per list, a list with more concepts has more candidates for the maximum, and each one is estimated from fewer answers.</p>
+
+							<h2>The bias</h2>
+
+							<p>Suppose a list has \(M\) concepts, each with the same true success rate \(p\), and \(n\) answers per concept. The observed rates are \(\hat p_1, \dots, \hat p_M\) with \(n\hat p_m \sim \text{Binomial}(n, p)\), and the reward is \(\max_m \hat p_m\). A maximum of noisy estimates is at least as large in expectation as any one of them:</p>
+
+							\[\mathbb{E}\left[\max_m \hat p_m\right] \ge \max_m \mathbb{E}[\hat p_m] = p.\]
+
+							<p>The gap grows with \(M\), because there are more draws, and with \(1/n\), because each draw is noisier. Splitting a fixed budget across more concepts increases both. With \(F\) the cumulative distribution function of \(\text{Binomial}(n, p)\), the expectation is exact:</p>
+
+							\[\mathbb{E}\left[\max_m \hat p_m\right] = \sum_{j=0}^{n} \frac{j}{n}\left(F(j)^M - F(j-1)^M\right).\]
+
+							<h2>Values</h2>
+
+							<p>Expected reward when every concept has the same true success rate, for a budget of 16 answers per list:</p>
+
+							<table>
+								<thead><tr><th></th><th>1 concept × 16 answers</th><th>2 concepts × 8</th><th>4 concepts × 4</th></tr></thead>
+								<tbody>
+									<tr><td>\(p = 0.2\)</td><td>0.200</td><td>0.277</td><td>0.408</td></tr>
+									<tr><td>\(p = 0.5\)</td><td>0.500</td><td>0.598</td><td>0.749</td></tr>
+								</tbody>
+							</table>
+
+							<p>At \(p = 0.2\), a list of four concepts that are no better than a single one scores twice as much. A concept with 4 answers shows a rate of 0.5 or more with probability 0.18, and at least one of four concepts does so with probability 0.55.</p>
+
+							<p>The same computation for larger budgets, at \(p = 0.2\):</p>
+
+							<table>
+								<thead><tr><th>Answers per list</th><th>1 concept</th><th>2 concepts</th><th>4 concepts</th></tr></thead>
+								<tbody>
+									<tr><td>16</td><td>0.200</td><td>0.277</td><td>0.408</td></tr>
+									<tr><td>64</td><td>0.200</td><td>0.240</td><td>0.305</td></tr>
+									<tr><td>128</td><td>0.200</td><td>0.228</td><td>0.274</td></tr>
+								</tbody>
+							</table>
+
+							<p>The bias shrinks with the budget but is still there at 128 answers. The paper notes this bias and allows up to 10 concepts per list; I only computed up to 4.</p>
+
+							<h2>What I observed</h2>
+
+							<p>During training, the average number of concepts per list went from 3.3 to 4.0, the maximum allowed. The average reward stayed flat (0.588 to 0.590). The first fact is what the bias predicts. The second means I cannot claim the generator exploited it: if it had, the reward should have risen.</p>
+
+							<h2>Takeaway</h2>
+
+							<p>With few answers per list, max-of-mean rewards the number of concepts as well as their quality. A reward meant for small budgets has to be compared across lists of different lengths before it is used for training.</p>
+
+							<nav class="series-nav" aria-label="Series navigation">
+								<a href="/notes/questions/small-budget-rewards-03-how-many-answers/">&larr; Previous: How many answers</a>
+								<a href="/notes/questions/small-budget-rewards/">Series index</a>
+								<a href="/notes/questions/small-budget-rewards-05-more-or-better-concepts/">Next: More or better concepts &rarr;</a>
+							</nav>
+
+							<div id="comments"></div>
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="/assets/js/site.js"></script>
+			<script src="/assets/js/comments.js"></script>
+			<script src="/assets/js/jquery.min.js"></script>
+			<script src="/assets/js/browser.min.js"></script>
+			<script src="/assets/js/breakpoints.min.js"></script>
+			<script src="/assets/js/util.js"></script>
+			<script src="/assets/js/main.js"></script>
+
+	</body>
+</html>

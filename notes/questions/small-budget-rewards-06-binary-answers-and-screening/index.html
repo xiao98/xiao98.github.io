@@ -1,0 +1,96 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html lang="en">
+	<head>
+		<title>Why a “hard” label and yes/no answers can make pass@k meaningless — Hao Xiao</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="Building a hard evaluation set for a small model: why yes/no problems inflate pass@k, why a human difficulty label is not enough, and why screening samples must not be reused." />
+		<link rel="canonical" href="https://xiao98.github.io/notes/questions/small-budget-rewards-06-binary-answers-and-screening/" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Hao Xiao" />
+		<meta property="og:title" content="Why a “hard” label and yes/no answers can make pass@k meaningless — Hao Xiao" />
+		<meta property="og:description" content="Building a hard evaluation set for a small model: why yes/no problems inflate pass@k, why a human difficulty label is not enough, and why screening samples must not be reused." />
+		<meta property="og:url" content="https://xiao98.github.io/notes/questions/small-budget-rewards-06-binary-answers-and-screening/" />
+		<meta name="twitter:card" content="summary" />
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<link rel="stylesheet" href="/assets/css/custom.css" />
+		<noscript><link rel="stylesheet" href="/assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<h1>Why a “hard” label and yes/no answers can make pass@k meaningless</h1>
+
+							<p>Published on 22 November 2026.</p>
+							<p class="series-meta">Part 6 of 8 in <a href="/notes/questions/small-budget-rewards/">Questions on rewards built from a few rollouts</a>.</p>
+
+							<p>To test whether concepts help on hard problems, I first took the hardest band (difficulty 9 to 10) of DeepMath-103K. Repeated sampling with the 7B model already solved 60% of these problems on the first attempt. Two things were wrong with the set.</p>
+
+							<h2>Yes/no answers</h2>
+
+							<p>In a sample of 200 problems from that band, 156 had a yes/no answer. A model that guesses solves such a problem within \(k\) attempts with probability \(1 - 2^{-k}\):</p>
+
+							<table>
+								<thead><tr><th>Attempts k</th><th>1</th><th>2</th><th>4</th><th>8</th></tr></thead>
+								<tbody>
+									<tr><td>pass@k by guessing</td><td>50%</td><td>75%</td><td>93.8%</td><td>99.6%</td></tr>
+								</tbody>
+							</table>
+
+							<p>pass@k counts a problem as solved if any of the \(k\) attempts is right, so on yes/no problems it goes to 1 without any reasoning. I excluded them.</p>
+
+							<h2>Hard for whom</h2>
+
+							<p>The 44 problems that were not yes/no were still solved 52% of the time on the first attempt. The difficulty label describes how hard a problem is for people, and it does not track how hard it is for this model. So I selected problems by the model's own results: 1000 problems that are not yes/no, with difficulty 7 or more, 8 samples each.</p>
+
+							<table>
+								<thead><tr><th>Correct out of 8</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th></tr></thead>
+								<tbody>
+									<tr><td>Problems (of 1000)</td><td>240</td><td>91</td><td>64</td><td>66</td><td>68</td><td>78</td><td>83</td><td>95</td><td>215</td></tr>
+								</tbody>
+							</table>
+
+							<p>The distribution has two peaks: 240 problems are never solved and 215 always are. I kept the 395 problems solved at most 2 times out of 8 and drew 200 of them.</p>
+
+							<h2>Why the screening samples are not reused</h2>
+
+							<p>The selection is made on a noisy count. A problem with a true success rate of 0.3 enters the set when it happens to get 2 correct out of 8, and is left out when it gets 3. The selected problems are therefore, on average, less hard than their screening results say.</p>
+
+							<p>The numbers show it. At screening, the 395 selected problems were solved 6.9% of the time. On fresh samples with the same decoding settings, the 200 problems drawn from them are solved 10.3% of the time on the first attempt. Counting the screening samples as attempts would have biased every result toward failure.</p>
+
+							<h2>Takeaway</h2>
+
+							<p>A hard set has to be defined by the model that will be evaluated on it, with samples that are then thrown away. Even so, this set is much less hard for my 7B model (71% solved within 64 attempts) than the paper's hard set is for its 32B model.</p>
+
+							<nav class="series-nav" aria-label="Series navigation">
+								<a href="/notes/questions/small-budget-rewards-05-more-or-better-concepts/">&larr; Previous: More or better concepts</a>
+								<a href="/notes/questions/small-budget-rewards/">Series index</a>
+								<a href="/notes/questions/small-budget-rewards-07-gain-peaks-at-moderate-budgets/">Next: Gain against budget &rarr;</a>
+							</nav>
+
+							<div id="comments"></div>
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="/assets/js/site.js"></script>
+			<script src="/assets/js/comments.js"></script>
+			<script src="/assets/js/jquery.min.js"></script>
+			<script src="/assets/js/browser.min.js"></script>
+			<script src="/assets/js/breakpoints.min.js"></script>
+			<script src="/assets/js/util.js"></script>
+			<script src="/assets/js/main.js"></script>
+
+	</body>
+</html>
