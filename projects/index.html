@@ -48,6 +48,41 @@
 								</article>
 
 								<article class="project">
+									<h2 id="gaia2-ask-or-act">Ask-or-act decisions on Gaia2</h2>
+									<p class="subtitle">Whether an agent asks before acting on an ambiguous request</p>
+									<p>An experiment on the ambiguity split of Meta's Gaia2 benchmark with the model and harness fixed. Rewriting one rule of the agent instructions so that it lists common ambiguity patterns cut case-verified premature state-changing actions from 15 to 5 and raised passes from 9 to 19 on 30 held-out scenarios (exact McNemar test, Holm-corrected p = 0.006). On a random subset, execution tasks were unaffected (32/40 vs 33/40).</p>
+									<p class="entry-links"><a href="https://github.com/xiao98/gaia2-ask-or-guess" aria-label="Gaia2 ask-or-act experiment on GitHub">GitHub</a><a href="https://github.com/xiao98/gaia2-ask-or-guess/blob/main/report.pdf" aria-label="Research note on the Gaia2 ask-or-act experiment">Note</a></p>
+								</article>
+
+								<article class="project">
+									<h2 id="mini-conductor">mini-conductor</h2>
+									<p class="subtitle">Does an orchestrator use a worker it has never seen?</p>
+									<p>A single-GPU re-implementation of the orchestration setup of Sakana AI's <a href="https://arxiv.org/abs/2512.04388">Conductor</a> (ICLR 2026), with workers shown by name and description instead of ordinal IDs. After the supervised warm start, a much stronger unseen worker appears in the top-level plan of only 8 of 150 episodes; seen workers are found wherever their ID is shuffled, while the unseen one is picked mainly when it lands on an ID used in training. These are results before RL: the GRPO stage has not been run to completion.</p>
+									<p class="entry-links"><a href="https://github.com/xiao98/mini-conductor" aria-label="mini-conductor on GitHub">GitHub</a></p>
+								</article>
+
+								<article class="project">
+									<h2 id="diffusiongemma-repro">DiffusionGemma stage 1 at 135M scale</h2>
+									<p class="subtitle">Converting a causal language model into a diffusion model on one GPU</p>
+									<p>A PyTorch port of the supervised stage and entropy-bounded block sampler of <a href="https://arxiv.org/abs/2608.00146">DiffusionGemma</a>, written from the official JAX code and applied to a 135M causal language model. It reproduces the paper's trend for the supervised checkpoint (sample perplexity 57 to 32 as denoising steps go from 48 to 192) and documents where the small model differs: about one committed token per step, against about 4.5 in the paper.</p>
+									<p class="entry-links"><a href="https://github.com/xiao98/diffusiongemma-repro" aria-label="DiffusionGemma reproduction on GitHub">GitHub</a></p>
+								</article>
+
+								<article class="project">
+									<h2 id="crsa-analysis">Collaborative RSA on MDDial</h2>
+									<p class="subtitle">When pragmatic reasoning over an LLM reduces to a uniform speaker</p>
+									<p>A reproduction and analysis of the MDDial experiment in <a href="https://aclanthology.org/2025.emnlp-main.1145/">Collaborative Rational Speech Act</a> (EMNLP 2025), from the released outputs and a standalone implementation of the model equations. In this setting the CRSA speaker is uniform, which accounts for the reported dialog perplexity (15.362 = √(2·118)); a normalisation fix brings the RSA baseline to the same value (15.395 to 15.362). The reference-game conclusions of the paper are unchanged.</p>
+									<p class="entry-links"><a href="https://github.com/xiao98/crsa/tree/mddial-analysis/analysis" aria-label="Collaborative RSA analysis on GitHub">GitHub</a><a href="https://github.com/xiao98/crsa/blob/mddial-analysis/analysis/note/mddial_note.pdf" aria-label="Technical note on the Collaborative RSA MDDial experiment">Note</a></p>
+								</article>
+
+								<article class="project">
+									<h2 id="triton-trace-rl">triton-trace-rl</h2>
+									<p class="subtitle">In progress · A multi-turn RL environment for GPU kernel optimisation</p>
+									<p>KernelBench (levels 1–2) restricted to Triton, packaged as a <a href="https://github.com/PrimeIntellect-ai/verifiers">verifiers</a> environment: the agent rewrites a PyTorch reference as Triton kernels, receives compile, correctness, timing and profiler feedback, and resubmits. The environment, sandbox and anti-reward-hacking guards are written and tested; no evaluation or training numbers exist yet.</p>
+									<p class="entry-links"><a href="https://github.com/xiao98/triton-trace-rl" aria-label="triton-trace-rl on GitHub">GitHub</a></p>
+								</article>
+
+								<article class="project">
 									<h2 id="opengoal">OpenGOAL</h2>
 									<p class="subtitle">Persistent multi-agent problem solving</p>
 									<p>A multi-agent framework for persistent work on programming and mathematical tasks, built around explicit success criteria, iterative evaluation, and failure recovery.</p>
@@ -73,6 +108,12 @@
 									<p class="subtitle">Search and resume AI coding sessions</p>
 									<p>A Go command-line tool for searching and resuming local sessions across Claude Code, Codex, and Gemini CLI.</p>
 									<p class="entry-links"><a href="https://github.com/xiao98/llm-recall" aria-label="llm-recall on GitHub">GitHub</a></p>
+								</article>
+
+								<article class="project">
+									<h2 id="open-source-contributions">Open-source contributions</h2>
+									<p class="subtitle">Pull requests to agent evaluation and RL training tools (under review)</p>
+									<p>Meta Agents Research Environments: a configurable judge temperature (<a href="https://github.com/facebookresearch/meta-agents-research-environments/pull/129">#129</a>), and reporting a failed judge call as an error instead of a failed task (<a href="https://github.com/facebookresearch/meta-agents-research-environments/pull/130">#130</a>). AReaL: failing fast when an inference server dies after launch (<a href="https://github.com/areal-project/AReaL/pull/1983">#1983</a>). Harbor: model compatibility options for custom endpoints (<a href="https://github.com/harbor-framework/harbor/pull/4430">#4430</a>).</p>
 								</article>
 
 							</section>
