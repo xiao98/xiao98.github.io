@@ -1,0 +1,135 @@
+<!DOCTYPE HTML>
+<!--
+  Phantom by HTML5 UP
+  html5up.net | @ajlkn
+  Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html lang="en">
+  <head>
+    <title>Why does GRPO with one rollout work at all? — Hao Xiao</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Search-R1 reports stronger held-out QA scores with a GRPO group size of one. The apparent paradox disappears in the released code: single-response groups use a zero baseline and unit scale, changing the advantage estimator." />
+    <link rel="canonical" href="https://xiao98.github.io/notes/grpo-one-rollout-search-r1/" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Hao Xiao" />
+    <meta property="og:title" content="Why does GRPO with one rollout work at all? — Hao Xiao" />
+    <meta property="og:description" content="Search-R1 reports stronger held-out QA scores with a GRPO group size of one. The apparent paradox disappears in the released code: single-response groups use a zero baseline and unit scale, changing the advantage estimator." />
+    <meta property="og:url" content="https://xiao98.github.io/notes/grpo-one-rollout-search-r1/" />
+    <meta name="twitter:card" content="summary" />
+    <link rel="stylesheet" href="/assets/css/main.css" />
+    <link rel="stylesheet" href="/assets/css/custom.css" />
+    <noscript><link rel="stylesheet" href="/assets/css/noscript.css" /></noscript>
+  </head>
+  <body class="is-preload">
+    <div id="wrapper">
+      <div id="main">
+        <div class="inner">
+          <h1>Why does GRPO with one rollout work at all?</h1>
+          <p>Published on 22 November 2026.</p>
+
+          <p><a href="https://arxiv.org/abs/2503.09516">Search-R1</a> (Jin et al., COLM 2025) trains an LLM to alternate between reasoning and search-engine calls. Its Appendix H varies the number of sampled trajectories per question during GRPO training. The curious result is that group size one scores <strong>0.410</strong> on average across seven QA sets, ahead of size three (0.363) and size five (0.350).</p>
+
+          <p>But how can a group-relative algorithm learn from a group of one?</p>
+
+          <h2>The apparent contradiction</h2>
+
+          <p>In outcome-based GRPO, a group of \(G\) responses to the same question receives rewards \(r_1,\ldots,r_G\). A common advantage is the reward centered and scaled within that group:</p>
+
+          \[
+          \hat A_i=\frac{r_i-\bar r}{s_r+\varepsilon},
+          \qquad
+          \bar r=\frac{1}{G}\sum_{j=1}^{G}r_j.
+          \]
+
+          <p>Set \(G=1\). Then \(\bar r=r_1\), so the numerator is zero. The usual sample standard deviation is also undefined for a singleton. Adding \(\varepsilon\) to the denominator can avoid division by zero, but it cannot restore a learning signal: \(\hat A_1=0\). <strong>Naively substituting \(G=1\) into group-normalized GRPO does not yield REINFORCE.</strong></p>
+
+          <h2>What the released Search-R1 code actually does</h2>
+
+          <p>The paper explicitly says that size one becomes REINFORCE. The released implementation makes that possible with a special case in <a href="https://github.com/PeterGriffinJin/Search-R1/blob/598e61bd1d36895726d28a8d06b3a15bed19f5d3/verl/trainer/ppo/core_algos.py#L138-L155"><code>compute_grpo_outcome_advantage</code></a>:</p>
+
+          <pre><code>if len(id2score[idx]) == 1:
+    id2mean[idx] = torch.tensor(0.0)
+    id2std[idx] = torch.tensor(1.0)</code></pre>
+
+          <p>The same function then computes <code>(score - mean) / (std + epsilon)</code>. Thus a single trajectory uses</p>
+
+          \[
+          \hat A_1=\frac{r_1-0}{1+\varepsilon}\approx r_1,
+          \]
+
+          <p>not the zero advantage implied by within-group centering. The trainer passes these advantages into the policy update. The public <a href="https://github.com/PeterGriffinJin/Search-R1/blob/598e61bd1d36895726d28a8d06b3a15bed19f5d3/verl/trainer/ppo/ray_trainer.py#L140-L151">GRPO path</a> calls this function; the released training script sets <code>algorithm.adv_estimator=grpo</code> and <code>rollout.n_agent=5</code> for its default group-size-five run.</p>
+
+          <p>This is a <em>REINFORCE-like reward weight</em> inside a PPO-style clipped policy update with KL regularization, not an exact switch to a standalone vanilla REINFORCE trainer. The code demonstrates the special-case estimator; it does not by itself document the exact seeds and checkpoints used for Appendix H.</p>
+
+          <h2>How a raw reward learns without comparing siblings</h2>
+
+          <p>Consider a two-answer policy. Its probability of producing the correct answer is \(p=\sigma(z)\), with reward one for correct and zero for incorrect. With a raw-reward policy gradient,</p>
+
+          \[
+          \mathbb E\!\left[r\,\frac{\partial}{\partial z}\log\pi_z(a)\right]
+          =p(1-p).
+          \]
+
+          <p>A correct sample has a positive update; an incorrect sample has zero <em>reward-driven</em> update. Averaged over sampling, the gradient still increases \(p\) for \(0&lt;p&lt;1\). Negative examples need not receive explicit negative advantages for learning to occur. In Search-R1, the separate KL and entropy-related terms can still act even when the outcome reward is zero.</p>
+
+          <p>The key change is the estimator, not a magical property of one-sample groups:</p>
+
+          <table>
+            <thead><tr><th>Group</th><th>Rewards</th><th>Effective advantages</th></tr></thead>
+            <tbody>
+              <tr><td>\(G=1\)</td><td>\([1]\)</td><td>\([\approx 1]\), special case</td></tr>
+              <tr><td>\(G=1\)</td><td>\([0]\)</td><td>\([0]\), special case</td></tr>
+              <tr><td>\(G=2\)</td><td>\([1,0]\)</td><td>\([+0.707,-0.707]\), sample-std normalization</td></tr>
+              <tr><td>\(G=2\)</td><td>\([1,1]\)</td><td>\([0,0]\)</td></tr>
+            </tbody>
+          </table>
+
+          <p>These numbers follow from the estimator; they are a hand calculation, <strong>not</strong> a training reproduction.</p>
+
+          <h2>What the group-size result actually shows</h2>
+
+          <p>Appendix H reports the following mean Exact Match scores for Qwen2.5-7B-Base:</p>
+
+          <table>
+            <thead><tr><th>Responses per question</th><th>Mean EM on seven datasets</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>0.410</td></tr>
+              <tr><td>3</td><td>0.363</td></tr>
+              <tr><td>5</td><td>0.350</td></tr>
+            </tbody>
+          </table>
+
+          <p>The size-one run is 6.0 percentage points above size five. The paper also reports that larger groups learn faster on the training curve, while some runs become unstable. Models are evaluated from the final checkpoint when training remains stable, or from a previous stable checkpoint when it collapses.</p>
+
+          <p>This is <strong>not</strong> a clean test of group size alone. At \(G=1\), the algorithm uses raw rewards instead of relative, standardized advantages. Group size can also change the number and distribution of trajectories processed, while different checkpoint choices affect the reported score. Appendix H does not provide variance across random seeds. It therefore cannot establish that one rollout is intrinsically better for generalization.</p>
+
+          <h2>What I would test next</h2>
+
+          <p>Hold the model, questions, total rollout budget, optimizer, KL coefficient and checkpoint-selection rule fixed. Then compare: (a) raw-reward advantage at \(G=1\), (b) raw-reward advantage at larger \(G\), and (c) centered group advantages at larger \(G\). Report both the rate of all-equal-reward groups and the variance of gradient estimates, across multiple seeds.</p>
+
+          <p>That separates two questions the current table mixes: <em>how many trajectories should be sampled for a question?</em> and <em>which baseline should convert their rewards into updates?</em> The second question is at least as important as the first.</p>
+
+          <h2>Limits</h2>
+
+          <p>This note checks the paper's Appendix H against the released estimator and derives a small two-action example. I did not reproduce its 7B training runs, and the public code does not verify which exact run produced each appendix checkpoint. The numerical comparison is the authors' result, not mine.</p>
+
+          <h2>Takeaway</h2>
+
+          <p>Search-R1's \(G=1\) result is not a paradox. <strong>The one-sample branch stops computing a group-relative advantage and uses the outcome reward itself.</strong> The interesting open question is whether the better score comes from that estimator, the rollout budget, training stability, or checkpoint selection—not from the number one by itself.</p>
+
+          <p>Related: <a href="/notes/questions/small-budget-rewards-08-identical-reward-groups/">Why a group whose rollouts all get the same reward teaches nothing</a>.</p>
+
+          <div id="comments"></div>
+        </div>
+      </div>
+    </div>
+    <script src="/assets/js/site.js"></script>
+    <script src="/assets/js/comments.js"></script>
+    <script src="/assets/js/jquery.min.js"></script>
+    <script src="/assets/js/browser.min.js"></script>
+    <script src="/assets/js/breakpoints.min.js"></script>
+    <script src="/assets/js/util.js"></script>
+    <script src="/assets/js/main.js"></script>
+  </body>
+</html>
