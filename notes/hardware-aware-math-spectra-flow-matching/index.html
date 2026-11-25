@@ -1,0 +1,160 @@
+<!DOCTYPE HTML>
+<!--
+  Phantom by HTML5 UP
+  html5up.net | @ajlkn
+  Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html lang="en">
+  <head>
+    <title>Dancing in Silicon Chains: From Matrix Spectra and Flow Matching to Hardware-Aware AI — Hao Xiao</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Why mathematically faster algorithms often run slower on GPUs, and how unifying generative flows, spectral geometry, and silicon physics unlocks 10x real-world performance." />
+    <link rel="canonical" href="https://xiao98.github.io/notes/hardware-aware-math-spectra-flow-matching/" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Hao Xiao" />
+    <meta property="og:title" content="Dancing in Silicon Chains: From Matrix Spectra and Flow Matching to Hardware-Aware AI — Hao Xiao" />
+    <meta property="og:description" content="Why mathematically faster algorithms often run slower on GPUs, and how unifying generative flows, spectral geometry, and silicon physics unlocks 10x real-world performance." />
+    <meta property="og:url" content="https://xiao98.github.io/notes/hardware-aware-math-spectra-flow-matching/" />
+    <meta name="twitter:card" content="summary" />
+    <link rel="stylesheet" href="/assets/css/main.css" />
+    <link rel="stylesheet" href="/assets/css/custom.css" />
+    <noscript><link rel="stylesheet" href="/assets/css/noscript.css" /></noscript>
+  </head>
+  <body class="is-preload">
+    <div id="wrapper">
+      <div id="main">
+        <div class="inner">
+          <h1>Dancing in Silicon Chains: From Matrix Spectra and Flow Matching to Hardware-Aware AI</h1>
+          <p>Published on 25 November 2026.</p>
+
+          <blockquote>
+            <p><strong>TL;DR</strong><br />
+            Pure asymptotic complexity is a trap in modern AI systems. Whether executing low-latency quantitative trades via Flow Matching, clustering overdispersed count matrices, or training multi-billion-parameter LLMs, real-world high-dimensional data is governed by <strong>heavy tails and spectral outliers</strong>, while real-world compute is governed by <strong>memory bandwidth and Tensor Core tile alignment</strong>. The richest research frontier today lies precisely where high-level mathematical equivalences meet the physical constraints of silicon.</p>
+          </blockquote>
+
+          <h2>1. The Illusion of Pure Algorithmic Complexity</h2>
+
+          <p>In theoretical computer science, we are trained to worship asymptotic complexity. If an algorithm cuts theoretical FLOPs by 50%, or pushes the matrix multiplication exponent \(\omega\) down toward \(\frac{9}{4} = 2.25\), it is celebrated as a landmark achievement. Yet in modern AI engineering, a mathematically "leaner" algorithm frequently runs three times slower on an actual GPU.</p>
+
+          <p>This note traces an inquiry that began with a specific question in quantitative finance—<em>how can Flow Matching improve trade execution?</em>—and cut across <strong>matrix spectral theory</strong>, <strong>probabilistic biclustering</strong>, <strong>second-order optimizers</strong>, and <strong>GPU microarchitecture</strong>. Beneath these seemingly unrelated fields lies a single structural tension: <strong>how to extract clean signals from skewed, heavy-tailed distributions while reshaping mathematical operators to obey the physical laws of silicon.</strong></p>
+
+          <h2>2. Fighting Heavy Tails and Multimodality: Flows &amp; Latent Blocks</h2>
+
+          <p>High-dimensional empirical data rarely resembles a polite Gaussian bell curve. Across financial order books, microbial genomes, and neural activations, distributions are stubbornly <strong>multimodal, skewed, and heavy-tailed</strong>.</p>
+
+          <h3>Conditional Flow Matching in Quantitative Execution</h3>
+
+          <p>In intraday optimal execution, liquidating a large position under shifting order-book depth admits multiple distinct optimal strategies (e.g., aggressive front-loading vs. passive stealth). Standard MSE regression averages these distinct modes into a predictable, suboptimal trajectory.</p>
+
+          <p><strong>Conditional Flow Matching (CFM)</strong> bypasses this by learning a time-dependent velocity field \(v_\theta(z_s, s \mid c)\) conditioned on microstructure states \(c\), transporting a simple prior to the multimodal action distribution in just 4–8 ODE steps. Two mathematical choices make it production-viable:</p>
+
+          <ol>
+            <li><strong>Simplex Reparameterization:</strong> By constructing linear optimal-transport paths \(z_s = (1-s)z_0 + s z_1\) in unconstrained logit space \(\mathbb{R}^{H-1}\) and mapping the terminal state back via \(\hat{a} = q_t \cdot \operatorname{Softmax}([\hat{z}_1, 0])\), non-negativity and exact inventory conservation (\(\sum_{i=1}^H \hat{a}_i = q_t\)) are guaranteed without post-hoc clipping.</li>
+            <li><strong>Heavy-Tailed Priors for Scenario Generation:</strong> When generating multi-asset return paths, replacing Gaussian noise \(\mathcal{N}(0, I)\) with a <strong>Multivariate Student-\(t\) prior</strong> initialized with rolling historical covariance allows short-step ODE integration to preserve power-law tail risk and crisis-regime correlation spikes.</li>
+          </ol>
+
+          <h3>When Geometry Fails Count Data: Probabilistic Biclustering</h3>
+
+          <p>When extreme skewness appears as zero-inflated, overdispersed integer counts—such as sample-by-species abundance matrices \(Y \in \mathbb{N}^{n \times p}\) in microbial ecology—naive Euclidean inner products or raw spectral decompositions get hijacked by library-size variations and extreme count spikes.</p>
+
+          <p>Here, generative latent variable models outperform pure linear projections. Using a <strong>Negative Binomial Latent Block Model (LBM)</strong> (<em>Aubert et al., 2021</em>), expected counts in row-cluster \(k\) and column-cluster \(\ell\) are decoupled on the log scale:</p>
+
+          \[
+          \log \mu_{ij}^{(k\ell)} = \alpha_i + \beta_j + \gamma_{k\ell}
+          \]
+
+          <p>Separating sample sequencing depth (\(\alpha_i\)) and baseline species prevalence (\(\beta_j\)) from the true co-clustering interaction (\(\gamma_{k\ell}\)) via Variational EM reveals clean checkerboard ecological niches that raw matrix factorization misses.</p>
+
+          <h2>3. The X-Ray of Billion-Parameter Models: Matrix Spectra</h2>
+
+          <p>Stepping from classic data matrices into multi-billion-parameter LLMs, our primary diagnostic lens is the <strong>Matrix Spectrum</strong>—the set of eigenvalues \(\sigma(A) = \{\lambda_1, \dots, \lambda_n\}\) for square operators like the Hessian, or singular values for rectangular weight matrices.</p>
+
+          <p>While we cannot materialize a \(7\text{B} \times 7\text{B}\) Hessian in memory, matrix-free probes like <strong>Stochastic Lanczos Quadrature (SLQ)</strong> estimate its Empirical Spectral Density (ESD) using only Hessian-vector products. Across modern Transformers, both weight singular spectra and Hessian curvature spectra converge to a striking universal anatomy: <strong>a vast, flat noise "Bulk" paired with a tiny handful of massive "Outliers."</strong></p>
+
+          <ul>
+            <li><strong>Low-Rank Adaptation (LoRA):</strong> Pre-trained weights exhibit heavy-tailed power-law singular spectra. Task-relevant structure concentrates in the top singular components emerging above the random Marchenko-Pastur bulk, explaining why low-rank updates suffice.</li>
+            <li><strong>Training Instability:</strong> Catastrophic loss spikes correspond geometrically to runaway growth in the top Hessian eigenvalues (\(\lambda_{\max}\)), creating razor-sharp curvature cliffs where standard learning rates overshoot into <code>NaN</code>.</li>
+            <li><strong>Quantization Collapse:</strong> Low-precision formats (FP8/INT4) have narrow dynamic ranges. A few extreme spectral/activation outliers stretch the quantization scale factor so wide that the remaining 99% of normal weights underflow to zero.</li>
+          </ul>
+
+          <h2>4. Silicon Physics: Why Tensor Cores Beat Asymptotic Math</h2>
+
+          <p>Why doesn't an asymptotically faster matrix multiplication algorithm (\(\omega &lt; 2.37\), or even \(2.25\)) immediately replace standard \(O(n^3)\) GEMM in PyTorch? Because <strong>GPUs do not charge equally for every floating-point operation.</strong></p>
+
+          <p>Two hardware realities dictate actual wall-clock speed:</p>
+
+          <ol>
+            <li><strong>Tensor Core Tile Rigidity:</strong> Modern GPUs derive over 90% of their compute from <strong>Tensor Cores</strong>—specialized silicon units that stamp out small dense matrix multiply-accumulates (\(D = A B + C\)) in low precision (BF16/FP8/FP4) within a single clock cycle. Break dense tile alignment (multiples of 16, 64, or 128) or introduce unstructured sparsity and branching, and hardware utilization plummets.</li>
+            <li><strong>The Memory Wall (Roofline Ratio):</strong> On an NVIDIA H100, BF16 Tensor Core peak throughput approaches 1000 TFLOPS, while HBM3 memory bandwidth sits around 3.35 TB/s. Fetching a single 2-byte number from HBM takes as much time as executing <strong>~600 arithmetic operations</strong> inside the chip. Arithmetic is cheap; HBM traffic is prohibitively expensive.</li>
+          </ol>
+
+          <h2>5. Hardware-Aware Mathematics in Action</h2>
+
+          <p>The most transformative breakthroughs in modern AI infrastructure share a common blueprint: <strong>using mathematical identities or iterative approximations to reshape algorithms around SRAM capacity and Tensor Core geometry</strong>—or changing the algebra entirely to bypass GPUs.</p>
+
+          <h3>Muon Optimizer: Replacing Serial SVD with Pure GEMMs</h3>
+
+          <p>To prevent dominant singular directions from monopolizing parameter updates, <strong>Muon</strong> orthogonalizes 2D momentum matrices (\(G = U \Sigma V^\top \mapsto U V^\top\)), flattening all active singular values to \(1\). Computing exact SVD on a GPU destroys parallelism. Instead, after Frobenius norm normalization, Muon runs ~5 steps of quintic <strong>Newton-Schulz iteration</strong>:</p>
+
+          \[
+          X_{k+1} = a X_k + b X_k (X_k^\top X_k) + c X_k (X_k^\top X_k)^2
+          \]
+
+          <p>On the singular values, this applies an odd polynomial \(p(s) = a s + b s^3 + c s^5\) whose fixed point pushes \(s \in (0, 1] \to 1\). Crucially, every step consists solely of dense matrix multiplications (<code>X @ X.T</code>), running at peak BF16 throughput directly on Tensor Cores.</p>
+
+          <h3>FlashAttention: Associative Algebra Defeating HBM</h3>
+
+          <p>Standard self-attention materializes an \(N \times N\) score matrix in HBM, bottlenecked by \(O(N^2)\) memory reads and writes. <strong>FlashAttention</strong> exploits the algebraic rescaling identity of the <strong>Online Softmax</strong>: partial exponential sums computed on small SRAM tiles can be exact-corrected on the fly via \(e^{m_{\text{old}} - m_{\text{new}}}\) as new row maxima arrive. Zero mathematical approximation, massive reduction in HBM round-trips.</p>
+
+          <h3>Rotational Quantization (SpinQuant / QuaRot) \(\neq\) RoPE</h3>
+
+          <p>A common point of confusion: <strong>rotational quantization is fundamentally different from RoPE.</strong> RoPE applies position-dependent 2D block rotations to \(Q\) and \(K\) so inner products encode relative token distance—intentionally altering model semantics. Conversely, <strong>SpinQuant</strong> and <strong>QuaRot</strong> insert global orthogonal <strong>Hadamard matrices</strong> \(H\) (\(H H^\top = I\), entries \(\pm d^{-1/2}\)) across hidden dimensions:</p>
+
+          \[
+          Y = (X H)(H^\top W)
+          \]
+
+          <p>Mathematically, \(H H^\top\) cancels out, leaving floating-point outputs invariant. Physically, the orthogonal rotation smears extreme channel outliers evenly across all coordinates, allowing activations and weights to fit cleanly into INT4/FP4 Tensor Cores without accuracy collapse.</p>
+
+          <h3>Challenging the GPU Paradigm Head-On</h3>
+
+          <p>Beyond optimizing for GPUs, several architectures attack the floating-point GEMM premise directly:</p>
+
+          <ul>
+            <li><strong>1.58-Bit Ternary Algebra (BitNet b1.58):</strong> Constraining weights to \(\{-1, 0, +1\}\) eliminates floating-point multiplications altogether, reducing matrix projections to pure integer additions/subtractions and enabling fast LLM inference on standard CPUs.</li>
+            <li><strong>Deterministic Dataflow Silicon (Groq / Cerebras):</strong> Stripping away dynamic GPU warp schedulers and cache coherency hardware in favor of compile-time deterministic SRAM dataflow, pushing LLM decode speeds to 700–2,500+ tokens/s.</li>
+            <li><strong>Thermodynamic Sampling (Extropic / Normal Computing):</strong> Early experimental chips that stop fighting thermal noise in digital transistors, harnessing natural electron fluctuations to physically relax into Boltzmann distributions and solve stochastic differential equations in hardware.</li>
+          </ul>
+
+          <h2>6. A 3-Minute Hardware Sanity Check for Algorithmic Ideas</h2>
+
+          <p>You do not need to write raw PTX assembly to do foundational AI research, nor can you afford to treat hardware as an abstract black box. Whenever you design a new architecture, optimizer, or parallel generative decoder, run it through four first-principles checks:</p>
+
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>Dimension</th><th>The First-Principles Question</th><th>Green Light on Modern Silicon</th></tr></thead>
+              <tbody>
+                <tr><td><strong>1. Arithmetic Intensity</strong></td><td>How many FLOPs execute per byte moved from HBM? (\(I = \text{FLOPs} / \text{Bytes}\))</td><td>\(I &gt; 300\) ops/byte on H100, or drastically fewer HBM round-trips (e.g., verifying multiple tokens in parallel during decode to amortize weight loading).</td></tr>
+                <tr><td><strong>2. Operator Geometry</strong></td><td>Does the inner loop reduce to dense, aligned matrix multiplies (<code>A @ B</code>)?</td><td>Dimensions aligned to multiples of 64/128; zero data-dependent <code>if-else</code> branching; polynomial GEMM approximations over serial decompositions.</td></tr>
+                <tr><td><strong>3. SRAM Associativity</strong></td><td>Can intermediate states be tiled into tens of KBs of on-chip SRAM?</td><td>Block-wise associative updates (fusible in OpenAI Triton) that never materialize \(O(N^2)\) intermediate tables in HBM.</td></tr>
+                <tr><td><strong>4. Spectral Smoothness</strong></td><td>Will heavy tails or outliers blow up BF16 / FP8 / INT4 grids?</td><td>Normalized, bounded, or orthogonally rotated spectra that survive low-precision Tensor Core accumulation without <code>NaN</code>.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p><strong>Mathematics defines the space of valid equivalences; silicon physics selects which equivalence dominates reality.</strong> Build at the intersection of the two.</p>
+
+          <div id="comments"></div>
+        </div>
+      </div>
+    </div>
+    <script src="/assets/js/site.js"></script>
+    <script src="/assets/js/comments.js"></script>
+    <script src="/assets/js/jquery.min.js"></script>
+    <script src="/assets/js/browser.min.js"></script>
+    <script src="/assets/js/breakpoints.min.js"></script>
+    <script src="/assets/js/util.js"></script>
+    <script src="/assets/js/main.js"></script>
+  </body>
+</html>

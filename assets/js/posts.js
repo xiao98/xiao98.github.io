@@ -9,6 +9,7 @@
 (function() {
 
 	var POSTS = [
+		['2026/11/25', 'hardware-aware-math-spectra-flow-matching', 'Dancing in Silicon Chains: From Matrix Spectra and Flow Matching to Hardware-Aware AI'],
 		['2026/11/22', 'grpo-one-rollout-search-r1', 'Why does GRPO with one rollout work at all?'],
 		['2026/11/14', 'agent-memory-is-files', "An agent's memory is the files it writes"],
 		['2026/11/17', 'concept-guided-exploration-one-gpu', 'Reproducing concept-guided exploration on one GPU'],
