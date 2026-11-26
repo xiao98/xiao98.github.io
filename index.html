@@ -60,11 +60,19 @@
 
 								<section>
 									<h2>Recent updates</h2>
-									<p>Open-source contributions <span class="pub-authors">(status as of 25 November 2026)</span></p>
+									<p>Open-source contributions <span class="pub-authors">(status as of 26 November 2026)</span></p>
 									<ul class="pubs">
 										<li>
 											<span class="pub-title">OpenEvolve — evolutionary code search</span>
 											<span class="pub-authors">Three merged fixes: fail fast on missing configuration files (<a href="https://github.com/algorithmicsuperintelligence/openevolve/pull/619">#619</a>), use UTF-8 for program sources and prompt templates (<a href="https://github.com/algorithmicsuperintelligence/openevolve/pull/618">#618</a>), and ignore non-checkpoint directories when reporting the latest checkpoint (<a href="https://github.com/algorithmicsuperintelligence/openevolve/pull/617">#617</a>).</span>
+										</li>
+										<li>
+											<span class="pub-title">ShinkaEvolve — Sakana AI's LLM-driven program evolution</span>
+											<span class="pub-authors">One merged fix: read candidate programs in the novelty check and evaluator logs as UTF-8, so non-ASCII programs are no longer rejected as not novel without asking the LLM on non-UTF-8 systems (<a href="https://github.com/SakanaAI/ShinkaEvolve/pull/241">#241</a>).</span>
+										</li>
+										<li>
+											<span class="pub-title">GEPA — reflective prompt and program optimization</span>
+											<span class="pub-authors">Proposed a fix so <code>CompositeStopper</code> calls every stop condition on each check; short-circuiting made <code>mode="all"</code> depend on the order of stateful stoppers. <a href="https://github.com/gepa-ai/gepa/pull/592">#592</a> (Open).</span>
 										</li>
 										<li>
 											<span class="pub-title">Meta Agents Research Environments (Gaia2)</span>
