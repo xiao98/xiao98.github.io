@@ -1,0 +1,110 @@
+<!DOCTYPE HTML>
+<!--
+	Template for a new note: copy to notes/<slug>/index.html, replace When should a reranker stop thinking?, A question-driven reading of Rank1, controlled no-reasoning ablations, and the cost of test-time reasoning in retrieval., when-should-a-reranker-stop-thinking, DATE and the text,
+	then add a line to POSTS in assets/js/posts.js (it feeds the Notes page and the home page)
+	and a <url> line to sitemap.xml.
+
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html lang="en">
+	<head>
+		<title>When should a reranker stop thinking? — Hao Xiao</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="A question-driven reading of Rank1, controlled no-reasoning ablations, and the cost of test-time reasoning in retrieval." />
+		<link rel="canonical" href="https://xiao98.github.io/notes/when-should-a-reranker-stop-thinking/" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Hao Xiao" />
+		<meta property="og:title" content="When should a reranker stop thinking? — Hao Xiao" />
+		<meta property="og:description" content="A question-driven reading of Rank1, controlled no-reasoning ablations, and the cost of test-time reasoning in retrieval." />
+		<meta property="og:url" content="https://xiao98.github.io/notes/when-should-a-reranker-stop-thinking/" />
+		<meta name="twitter:card" content="summary" />
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<link rel="stylesheet" href="/assets/css/custom.css" />
+		<noscript><link rel="stylesheet" href="/assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<h1>When should a reranker stop thinking?</h1>
+
+							<p>Published on 26 November 2026.</p>
+
+							
+<p>While preparing for an information retrieval seminar, I came across a result in the presenting group's reproduction of Rank1 that I found more interesting than the headline benchmark improvements.</p>
+<p>On BRIGHT's TheoremQA-theorems subset, the group's Rank1-7B improved nDCG@10 from 20.8 to 38.5. When the same checkpoint was prevented from generating its reasoning trace, it scored 38.4. The ranking improvement remained almost intact in the aggregate.</p>
+<p>What, then, were those extra 317 generated tokens per query–passage pair buying?</p>
+
+<h2>1. Is a reasoning-trained model the same thing as a model that needs to reason at inference time?</h2>
+<p><a href="https://arxiv.org/abs/2502.18418v2">Rank1</a> (Weller et al., COLM 2025) distils DeepSeek-R1 traces into a pointwise reranker. Given a query <em>q</em> and a passage <em>d</em>, it generates a trace <em>r</em>, then scores relevance using the probabilities of the final true and false tokens:</p>
+<p style="text-align:center"><code>s(q,d;r) = p(true | q,d,r) / [p(true | q,d,r) + p(false | q,d,r)]</code></p>
+<p>The original paper's Section 3.7 reports 27.5 on BRIGHT for Rank1-7B against 17.5 for a separately trained label-only ablation. That comparison changes both the training targets and the inference procedure. It does not isolate the value of generating a trace at test time.</p>
+<p>The seminar group instead held the checkpoint fixed and closed the reasoning block before scoring the answer. Their <a href="https://github.com/m-lomba/ir2-testbed/blob/614a0315b0e0476e404cb0feb247cb1eec046857/pairs/14-rank1/reproduce.ipynb">BRIGHT notebook</a> reports:</p>
+<div class="table-wrapper"><table><thead><tr><th>Run (7B)</th><th>Biology</th><th>TheoremQA</th></tr></thead><tbody>
+<tr><td>BM25 with GPT-4o query expansion</td><td>53.6</td><td>20.8</td></tr>
+<tr><td>Rank1, reasoning enabled</td><td>47.2</td><td>38.5</td></tr>
+<tr><td>Rank1, reasoning disabled</td><td>50.1</td><td>38.4</td></tr>
+<tr><td>Paired p-value, enabled vs. disabled</td><td>0.235</td><td>0.928</td></tr>
+</tbody></table></div>
+<p><small>nDCG@10 × 100; 103 Biology and 76 TheoremQA queries, with the authors' prompts and the same top-100 candidates. All measurements in this note are from the presenting group's saved notebook outputs, not experiments I ran. The group also traced the original TheoremQA first-stage score of 20.2 to two additional query IDs in the released run file.</small></p>
+<p>On TheoremQA, the paired bootstrap interval for the change when disabling reasoning was [−3.5, +2.8] points. We cannot conclude equivalence. But we also cannot attribute the large improvement over BM25 to explicit trace generation. Nor does the experiment establish that trace supervision during training was useless: closing the block is an inference intervention, not retraining.</p>
+
+<h2>2. Does a smaller model benefit more from thinking?</h2>
+<p>There is a more interesting pattern in the group's <a href="https://github.com/m-lomba/ir2-testbed/blob/614a0315b0e0476e404cb0feb247cb1eec046857/pairs/14-rank1/analysis.ipynb">course testbed notebook</a>. On identical BM25 top-20 candidates, the change in nDCG@10 when enabling reasoning was:</p>
+<div class="table-wrapper"><table><thead><tr><th>Checkpoint</th><th>SciFact</th><th>NFCorpus</th><th>ArguAna</th></tr></thead><tbody>
+<tr><td>0.5B</td><td>+0.041</td><td>+0.040</td><td>+0.070</td></tr>
+<tr><td>1.5B</td><td>+0.004</td><td>+0.025</td><td>+0.030</td></tr>
+<tr><td>3B</td><td>+0.008</td><td>+0.003</td><td>+0.086</td></tr>
+</tbody></table></div>
+<p>On SciFact, the 0.5B gain was significant (p = 0.022), whereas the 3B gain was not (p = 0.476). But ArguAna breaks the tempting story that larger models always need less reasoning: the 3B gain there is +0.086 (p &lt; 0.001).</p>
+<p>Even that gain is not enough to justify deployment by itself. On ArguAna the 3B model with reasoning scores 0.344, below MiniLM (0.460) and BM25 (0.516). Specifying that the task is to retrieve counterarguments raises the reasoning score to 0.411 and the no-reasoning score from 0.258 to 0.381. A better description of relevance can improve either mode.</p>
+<p>I would therefore separate model capacity, task definition and query difficulty rather than infer a scaling law from these three model sizes.</p>
+
+<h2>3. Is score polarization itself a ranking failure?</h2>
+<p>Jedidi et al.'s <a href="https://arxiv.org/abs/2505.16886">Don't Overthink Passage Reranking</a> studies matched reasoning and non-reasoning models and identifies score polarization as a possible explanation for degraded ranking. The seminar group's analysis independently observes that 96% of SciFact scores from Rank1-3B are below 0.01 or above 0.99 with reasoning, versus 8% without it.</p>
+<p>But there is a distinction worth making. If <em>z</em> is the true-minus-false logit margin, the score is sigmoid(<em>z</em>). For any positive temperature <em>T</em>, sigmoid(<em>z</em>/<em>T</em>) is strictly increasing in <em>z</em>. Lowering the temperature can make scores arbitrarily extreme while preserving their order in exact arithmetic.</p>
+<p>For example, scores (0.90, 0.70, 0.30) become approximately (0.99985, 0.9674, 0.0326) if we multiply the corresponding logit margins by four. Nothing changes in the ranking. Polarization alone cannot prove a loss of ranking information. Ties caused by finite precision, or changes in the ordering of relevant and non-relevant passages, are separate issues.</p>
+<p>A useful next diagnostic would be to count relevant–non-relevant pair inversions within each query before and after reasoning, and to distinguish true ordering changes from numerical ties. This is a proposed check, not a result of the reproduction.</p>
+
+<h2>4. Can we spend reasoning only where it changes the ranking?</h2>
+<p>On SciFact, Rank1-3B generates 355 tokens per pair with reasoning versus one without it. The measured T4 processing time is 0.396 versus 0.095 seconds per pair. The additional cost is substantial even though the measured nDCG gain is only 0.008 and is not statistically significant.</p>
+<p>Instead of asking whether reasoning is universally necessary, I would frame its use as a decision under a budget. Let a policy <em>g(q)</em> choose whether to enable the reasoning mode for a query's candidate set. Define <em>U</em> as nDCG@10 of the resulting ranking and <em>C</em> as its measured processing cost. One possible objective is:</p>
+<p style="text-align:center"><code>maximize E[U(q, g(q))] − λ E[C(q, g(q))]</code></p>
+<p>The decision must be made without access to relevance labels at inference time. An inexpensive first-pass signal, such as the gap between the leading scores or disagreement between MiniLM and the no-reasoning model, could be tested as a gate. Neither signal is guaranteed to predict the value of reasoning.</p>
+<p>I would first measure an oracle upper bound using paired per-query results from both modes. Then I would fit a gate on development queries and compare it on held-out queries against always-on, always-off and random selection at the same measured compute budget. A query-level gate is a deliberately simple starting point: mixing scores produced by two different modes within a single ranked list would require an additional comparability check.</p>
+<p>Explanations are a separate objective. In the group's <a href="https://github.com/m-lomba/ir2-testbed/blob/614a0315b0e0476e404cb0feb247cb1eec046857/pairs/14-rank1/demo.md">SciFact demo</a>, query 238 ranks the labelled evidence first with or without the trace. The explanation may still be useful, but a ranking metric cannot measure its usefulness to a researcher. A blinded evidence-verification study would address that question.</p>
+
+<h2>What remains open</h2>
+<p>I do not take these results as evidence that reasoning is useless. They suggest a narrower question: can a system predict the marginal value of another reasoning computation before paying for it? For an agent that invokes a retriever many times, this decision could matter more than the average improvement of a single always-on reranker.</p>
+<p>The gating objective and inversion diagnostic above are ideas for future experiments, not claimed improvements. The reported observations are limited to the checkpoints, prompts, candidate sets and datasets in the reproduction.</p>
+
+<h2>Sources</h2>
+<ul>
+<li>Weller et al. (2025). <em>Rank1: Test-Time Compute for Reranking in Information Retrieval.</em> <a href="https://arxiv.org/abs/2502.18418v2">arXiv:2502.18418v2</a>, especially Sections 3.6–3.8.</li>
+<li>Jedidi et al. (2025). <em>Don't Overthink Passage Reranking: Is Reasoning Truly Necessary?</em> <a href="https://arxiv.org/abs/2505.16886">arXiv:2505.16886</a>; revised <a href="https://aclanthology.org/2026.findings-emnlp.2158/">Findings of EMNLP 2026</a>.</li>
+<li>Matteo Lombardi and Sukhjot Kaur (2026). Seminar reproduction, <a href="https://github.com/kimgerdes/ir2-testbed/pull/9">IR2 testbed PR #9</a>, commit 614a031: <a href="https://github.com/m-lomba/ir2-testbed/blob/614a0315b0e0476e404cb0feb247cb1eec046857/pairs/14-rank1/reproduce.ipynb">BRIGHT reproduction</a>, <a href="https://github.com/m-lomba/ir2-testbed/blob/614a0315b0e0476e404cb0feb247cb1eec046857/pairs/14-rank1/analysis.ipynb">testbed analysis</a>, <a href="https://github.com/m-lomba/ir2-testbed/blob/614a0315b0e0476e404cb0feb247cb1eec046857/pairs/14-rank1/method.py">inference code</a>, and <a href="https://github.com/m-lomba/ir2-testbed/blob/614a0315b0e0476e404cb0feb247cb1eec046857/pairs/14-rank1/demo.md">demo</a>.</li>
+</ul>
+
+							<div id="comments"></div>
+						</div>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="/assets/js/site.js"></script>
+			<script src="/assets/js/comments.js"></script>
+			<script src="/assets/js/jquery.min.js"></script>
+			<script src="/assets/js/browser.min.js"></script>
+			<script src="/assets/js/breakpoints.min.js"></script>
+			<script src="/assets/js/util.js"></script>
+			<script src="/assets/js/main.js"></script>
+
+	</body>
+</html>
