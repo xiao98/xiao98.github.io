@@ -9,6 +9,7 @@
 (function() {
 
 	var POSTS = [
+		['2026/11/26', 'when-should-a-reranker-stop-thinking', 'When should a reranker stop thinking?'],
 		['2026/11/25', 'hardware-aware-math-spectra-flow-matching', 'Dancing in Silicon Chains: From Matrix Spectra and Flow Matching to Hardware-Aware AI'],
 		['2026/11/22', 'grpo-one-rollout-search-r1', 'Why does GRPO with one rollout work at all?'],
 		['2026/11/14', 'agent-memory-is-files', "An agent's memory is the files it writes"],
